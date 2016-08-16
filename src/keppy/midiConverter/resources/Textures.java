@@ -8,11 +8,12 @@ public class Textures {
 	
 	public static BufferedImage icon;
 	public static BufferedImage donatebtn;
-	public static BufferedImage eerroricon;
+	public static BufferedImage eerroricon = null;
 	public static BufferedImage heart;
 	public static BufferedImage sfzcomp;
 	public static BufferedImage updatebk;
 	public static BufferedImage logo;
+	public static BufferedImage warningicon = null;
 	
 	public static void load() throws Exception {
 		icon = ImageIO.read(Textures.class.getResourceAsStream("/icon.png"));
@@ -22,6 +23,7 @@ public class Textures {
 		sfzcomp = ImageIO.read(Textures.class.getResourceAsStream("/sfzcomp.png"));
 		updatebk = ImageIO.read(Textures.class.getResourceAsStream("/updatebk.png"));
 		logo = ImageIO.read(Textures.class.getResourceAsStream("/mainlogo.png"));
+		warningicon = ImageIO.read(Textures.class.getResourceAsStream("/warning.png"));
 	}
 	
 }

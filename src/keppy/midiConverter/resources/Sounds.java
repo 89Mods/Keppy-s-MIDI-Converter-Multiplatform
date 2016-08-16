@@ -14,11 +14,13 @@ public class Sounds {
 	public static Clip convfail;
 	public static Clip convfin;
 	public static Clip convstart;
+	public static Clip error = null;
 	
 	public static void load() throws Exception {
 		convfail = loadSound("/sounds/convfail.wav");
 		convfin = loadSound("/sounds/convfin.wav");
 		convstart = loadSound("/sounds/convstart.wav");
+		error = loadSound("/sounds/error.wav");
 	}
 	
 	private static Clip loadSound(String s) throws Exception {

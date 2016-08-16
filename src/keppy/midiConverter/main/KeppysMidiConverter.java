@@ -8,6 +8,7 @@ import java.net.URL;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import keppy.midiConverter.GUI.ErrorMessage;
 import keppy.midiConverter.GUI.KeppysMidiConverterPanel;
 
 /*
@@ -17,8 +18,8 @@ public class KeppysMidiConverter {
 	
 	public static final String NAME = "Keppy and TGM's MIDI Converter";
 	public static final int VERSION_MAJOR = 12;
-	public static final int VERSION_MINOR = 0;
-	public static final int VERSION_PATCH = 5;
+	public static final int VERSION_MINOR = 3;
+	public static final int VERSION_PATCH = 0;
 	public static final String VERSION = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH;
 	
 	//Main Window
@@ -50,14 +51,15 @@ public class KeppysMidiConverter {
 					try {
 						Desktop.getDesktop().browse(new URL("https://github.com/KaleidonKep99/Keppys-MIDI-Converter/releases").toURI());
 					} catch(Exception e2){
-			        	JOptionPane.showMessageDialog(frame, "Error opening download page", "Error", JOptionPane.ERROR_MESSAGE);
+			        	ErrorMessage.showErrorMessage(frame, "Error opening download page", e2, false);
 			        	e2.printStackTrace();
 			        	return;
 					}
 				}
 			}else if(update == 2){
-				JOptionPane.showMessageDialog(frame, "You have a newer version of the converter then the most recent available one. Strange, isnt it?");
+				JOptionPane.showMessageDialog(frame, "You have a newer version of the converter then the most recent available one. Strange, isnt it?", "You dirty hacker", JOptionPane.WARNING_MESSAGE);
 			}
 		}
 	}
+	
 }

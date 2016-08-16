@@ -6,8 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import javax.swing.JOptionPane;
-
+import keppy.midiConverter.GUI.ErrorMessage;
 import keppy.midiConverter.resources.FileDownloader;
 
 public class Updater {
@@ -16,7 +15,7 @@ public class Updater {
 		try {
 			FileDownloader.downloadFile("https://www.dropbox.com/s/61v9ndom0iyeaqq/converter_version.dat?dl=1", "convversion.dat");
 		}catch(Exception e){
-			JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "Error downloading convversion.dat for update check", "Error", JOptionPane.ERROR_MESSAGE);
+			ErrorMessage.showErrorMessage(KeppysMidiConverter.frame, "Error downloading convversion.dat for update check", e, false);
 			e.printStackTrace();
 			return 0;
 		}
@@ -30,10 +29,11 @@ public class Updater {
 			patch = dis.readInt();
 			dis.close();
 		}catch(Exception e){
-			JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "Error reading convversion.dat", "Error", JOptionPane.ERROR_MESSAGE);
+			ErrorMessage.showErrorMessage(KeppysMidiConverter.frame, "Error reading convversion.dat", e, false);
 			e.printStackTrace();
 			return 0;
 		}
+		new File("convversion.dat").delete();
 		if(major == KeppysMidiConverter.VERSION_MAJOR && minor == KeppysMidiConverter.VERSION_MINOR && patch == KeppysMidiConverter.VERSION_PATCH){
 			return 0;
 		}

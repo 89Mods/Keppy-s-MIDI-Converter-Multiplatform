@@ -67,17 +67,17 @@ public class InformationDialog extends JDialog {
 		lblCompiledFor.setBounds(212, 21, 316, 16);
 		panel_1.add(lblCompiledFor);
 		
-		JLabel lblCopyright = new JLabel(convertToMultiline("Copyright(C) 2013-2016, KaleidonKep99\n\nThis program is based around the great BASS libraries\nby Ian Luck from Un4seen Developments and NativeBass by Jérôme Jouvie. Take a look at Ian's site by clicking the \"Un4seen website\" button and Jérôme's with the \"un4seen.com\" button. Source code for KMC available here:"));
+		JLabel lblCopyright = new JLabel(convertToMultiline("Copyright(C) 2013-2016, KaleidonKep99\n\nThis program is based around the great BASS libraries\nby Ian Luck from Un4seen Developments and NativeBass by Jérôme Jouvie. Take a look at Ian's site by clicking the \"un4seen.com\" button and Jérôme's with the \"NativeBass website\" button. Source code for KMC available here:"));
 		lblCopyright.setHorizontalAlignment(SwingConstants.LEFT);
 		lblCopyright.setVerticalAlignment(SwingConstants.TOP);
 		lblCopyright.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		lblCopyright.setBounds(212, 47, 316, 104);
 		panel_1.add(lblCopyright);
 		
-		JButton btnSourceCode = new JButton("<HTML><U>-not yet lol-</U></HTML>");
+		JButton btnSourceCode = new JButton("Source code on github");
 		btnSourceCode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				KeppysMidiConverterPanel.openWebpage("https://github.com/89Mods/Keppy-s-MIDI-Converter-Multiplatform");
 			}
 		});
 		btnSourceCode.setOpaque(false);
@@ -95,7 +95,7 @@ public class InformationDialog extends JDialog {
 					ResourceExtractor.extractRecourceFromJar("/license.rtf", "license.rtf");
 					Desktop.getDesktop().open(new File("license.rtf"));
 				} catch(Exception e2){
-					JOptionPane.showMessageDialog(frame, "Error extracting/opening license", "Error", JOptionPane.ERROR_MESSAGE);
+					ErrorMessage.showErrorMessage(frame, "Error extracting/opening license", e2, false);
 					e2.printStackTrace();
 					return;
 				}
@@ -124,7 +124,7 @@ public class InformationDialog extends JDialog {
 		 * BASSenc version: 2.4.12.9
 		 */
 		/*
-		 * Linux version:
+		 * Linux/Mac version:
 		 * BASS version: 2.4.12.1
 		 * BASSMIDI version: 2.4.9.0
 		 * BASSenc version: 2.4.13.0
@@ -166,7 +166,7 @@ public class InformationDialog extends JDialog {
 				try {
 					Desktop.getDesktop().browse(new URL("http://jerome.jouvie.free.fr/nativebass/index.php").toURI());
 				} catch(Exception e2){
-		        	JOptionPane.showMessageDialog(frame, "Error opening webpage page", "Error", JOptionPane.ERROR_MESSAGE);
+		        	ErrorMessage.showErrorMessage(frame, "Error opening webpage page", e2, false);
 		        	e2.printStackTrace();
 		        	return;
 				}
@@ -196,7 +196,7 @@ public class InformationDialog extends JDialog {
 						try {
 							Desktop.getDesktop().browse(new URL("https://github.com/KaleidonKep99/Keppys-MIDI-Converter/releases").toURI());
 						} catch(Exception e2){
-				        	JOptionPane.showMessageDialog(frame, "Error opening download page", "Error", JOptionPane.ERROR_MESSAGE);
+				        	ErrorMessage.showErrorMessage(frame, "Error opening download page", e2, false);
 				        	e2.printStackTrace();
 				        	return;
 						}
@@ -258,7 +258,7 @@ public class InformationDialog extends JDialog {
 	    		try {
 	    			Desktop.getDesktop().browse(new URL(url).toURI());
 	    		} catch(Exception e2){
-	            	JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "Error opening donation website", "Error", JOptionPane.ERROR_MESSAGE);
+	            	ErrorMessage.showErrorMessage(frame, "Error opening donation website", e2, false);
 	            	e2.printStackTrace();
 	            	return;
 	    		}

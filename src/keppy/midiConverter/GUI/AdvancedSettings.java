@@ -118,6 +118,7 @@ public class AdvancedSettings extends JDialog {
 		chckbxForceConstantBitrate.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		chckbxForceConstantBitrate.setBounds(7, 117, 224, 18);
 		panel_1.add(chckbxForceConstantBitrate);
+		chckbxForceConstantBitrate.setVisible(true);
 		
 		JLabel lblNewTempoValue = new JLabel("New tempo value: ");
 		lblNewTempoValue.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
@@ -133,17 +134,20 @@ public class AdvancedSettings extends JDialog {
 		lblBitrate.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		lblBitrate.setBounds(253, 120, 43, 16);
 		panel_1.add(lblBitrate);
+		lblBitrate.setVisible(true);
 		
 		bitrateComboBox.setEnabled(chckbxForceConstantBitrate.isSelected());
 		bitrateComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"500", "480", "450", "320", "256", "192", "128", "96", "64"}));
 		bitrateComboBox.setSelectedIndex(0);
 		bitrateComboBox.setBounds(298, 116, 66, 21);
 		panel_1.add(bitrateComboBox);
+		bitrateComboBox.setVisible(true);
 		
 		JLabel lblKbps = new JLabel("kbps");
 		lblKbps.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		lblKbps.setBounds(364, 120, 29, 16);
 		panel_1.add(lblKbps);
+		lblKbps.setVisible(true);
 		
 		chckbxEnableTooltipGuide = new JCheckBox("Enable Tooltip guide");
 		chckbxEnableTooltipGuide.addActionListener(new ActionListener() {
