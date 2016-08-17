@@ -41,9 +41,11 @@ public class ErrorMessage extends JDialog {
 		panel.setLayout(null);
 		setContentPane(panel);
 		
-		JLabel lblErroricon = new JLabel(isWarning ? new ImageIcon(Textures.warningicon) : new ImageIcon(Textures.eerroricon));
-		lblErroricon.setBounds(12, 8, 48, 48);
-		panel.add(lblErroricon);
+		if((isWarning && Textures.warningicon != null) || (!isWarning && Textures.eerroricon != null)){
+			JLabel lblErroricon = new JLabel(isWarning ? new ImageIcon(Textures.warningicon) : new ImageIcon(Textures.eerroricon));
+			lblErroricon.setBounds(12, 8, 48, 48);
+			panel.add(lblErroricon);
+		}
 		
 		JLabel lblErrorDuring = new JLabel("<html>Error during the execution of the converter!<br>More information down below:");
 		lblErrorDuring.setHorizontalAlignment(SwingConstants.LEFT);
@@ -100,6 +102,14 @@ public class ErrorMessage extends JDialog {
 		setVisible(true);
 	}
 	
+	public static void showErrorMessageNoStackTrace(JFrame frame, String error, boolean fatal){
+		new ErrorMessage(frame, "Error", error, fatal, false).displayError();
+	}
+	
+	public static void showWarningMessageNoStackTrace(JFrame frame, String warning, boolean fatal){
+		new ErrorMessage(frame, "Warning", warning, fatal, true).displayError();
+	}
+	
 	public static void showErrorMessage(JFrame frame, String error, Exception e, boolean fatal){
 		String errorMessage = "";
 		StringWriter w2 = new StringWriter();
@@ -115,7 +125,7 @@ public class ErrorMessage extends JDialog {
 		PrintWriter w = new PrintWriter(w2);
 		e.printStackTrace(w);
 		errorMessage = w2.getBuffer().toString();
-		new ErrorMessage(frame, "Error", error + ":\n\n" + errorMessage, fatal, true).displayError();
+		new ErrorMessage(frame, "Warning", error + ":\n\n" + errorMessage, fatal, true).displayError();
 	}
 	
 }

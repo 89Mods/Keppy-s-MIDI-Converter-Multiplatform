@@ -166,7 +166,7 @@ public class InformationDialog extends JDialog {
 				try {
 					Desktop.getDesktop().browse(new URL("http://jerome.jouvie.free.fr/nativebass/index.php").toURI());
 				} catch(Exception e2){
-		        	ErrorMessage.showErrorMessage(frame, "Error opening webpage page", e2, false);
+		        	ErrorMessage.showErrorMessage(frame, "Error opening a webpage", e2, false);
 		        	e2.printStackTrace();
 		        	return;
 				}
@@ -193,16 +193,10 @@ public class InformationDialog extends JDialog {
 				if(update == 1){
 					int option = JOptionPane.showConfirmDialog(frame, "An new version is available to download. Would you like to download it now?", "Message", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if(option == 0){
-						try {
-							Desktop.getDesktop().browse(new URL("https://github.com/KaleidonKep99/Keppys-MIDI-Converter/releases").toURI());
-						} catch(Exception e2){
-				        	ErrorMessage.showErrorMessage(frame, "Error opening download page", e2, false);
-				        	e2.printStackTrace();
-				        	return;
-						}
+						KeppysMidiConverterPanel.openWebpage("https://github.com/KaleidonKep99/Keppys-MIDI-Converter/releases");
 					}
 				}else if(update == 2){
-					JOptionPane.showMessageDialog(frame, "You have a newer version of the converter then the most recent available one. Strange, isnt it?");
+					JOptionPane.showMessageDialog(frame, "You have a newer version of the converter then the most recent available one. Strange, isnt it?", "You dirty hacker!", JOptionPane.WARNING_MESSAGE);
 				}else if(update == 0){
 					JOptionPane.showMessageDialog(frame, "This release is allready updated.", "No updates found.", JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -255,13 +249,7 @@ public class InformationDialog extends JDialog {
 	                "&currency_code=" + currency +
 	                "&bn=" + "PP%2dDonationsBF";
 	            
-	    		try {
-	    			Desktop.getDesktop().browse(new URL(url).toURI());
-	    		} catch(Exception e2){
-	            	ErrorMessage.showErrorMessage(frame, "Error opening donation website", e2, false);
-	            	e2.printStackTrace();
-	            	return;
-	    		}
+	    		KeppysMidiConverterPanel.openWebpage(url);
 			}
 		});
 		btnDonate.setIcon(new ImageIcon(Textures.donatebtn));

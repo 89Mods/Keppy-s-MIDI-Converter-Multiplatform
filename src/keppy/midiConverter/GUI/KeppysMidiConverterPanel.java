@@ -64,6 +64,7 @@ import jouvieje.bass.utils.BufferUtils;
 import jouvieje.bass.utils.Pointer;
 import keppy.midiConverter.main.KeppysMidiConverter;
 import keppy.midiConverter.resources.JLabelGifPlayer;
+import keppy.midiConverter.resources.LanguageFile;
 import keppy.midiConverter.resources.Sounds;
 import keppy.midiConverter.resources.Textures;
 import javax.swing.JPopupMenu;
@@ -120,6 +121,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 	 */
 	public KeppysMidiConverterPanel(){
 		super();
+		LanguageFile.loadCurrentLanguage(0);
 		
 		/*
 		 * Load resources
@@ -128,12 +130,8 @@ public class KeppysMidiConverterPanel extends JPanel {
 			//Load textures
 			Textures.load();
 		}catch(Exception e){
-			if(Textures.eerroricon != null){
-				e.printStackTrace();
-				ErrorMessage.showErrorMessage(KeppysMidiConverter.frame, "Error loading textures", e, true);
-			}else{
-				JOptionPane.showMessageDialog(this, "Error loading textures", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+			e.printStackTrace();
+			ErrorMessage.showErrorMessage(KeppysMidiConverter.frame, "Error loading textures", e, true);
 			System.exit(1);
 		}
 		try {
@@ -173,11 +171,11 @@ public class KeppysMidiConverterPanel extends JPanel {
 		JScrollPane listScroller = new JScrollPane(midiList);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
-		popupMenu.add(addMenuItem("Import MIDI", new ActionListener(){
+		popupMenu.add(addMenuItem(LanguageFile.CURRENT.menuActionsImport, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				importMidi();
 			}}, null));
-		popupMenu.add(addMenuItem("Remove selected MIDI", new ActionListener(){
+		popupMenu.add(addMenuItem(LanguageFile.CURRENT.menuActionsRemove, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
 					if(converterThread.isAlive()){
@@ -189,7 +187,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 					midiListModel.remove(midiList.getSelectedIndex());
 				}
 			}}, null));
-		popupMenu.add(addMenuItem("Clear MIDIs list", new ActionListener(){
+		popupMenu.add(addMenuItem(LanguageFile.CURRENT.menuActionsClearMIDIsList, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
 					if(converterThread.isAlive()){
@@ -391,20 +389,20 @@ public class KeppysMidiConverterPanel extends JPanel {
 	private void createMenuBar(){
 		JMenuBar bar = new JMenuBar();
 		KeppysMidiConverter.frame.setJMenuBar(bar);
-		JMenu actionsMenu = new JMenu("Actions");
+		JMenu actionsMenu = new JMenu(LanguageFile.CURRENT.menuActions);
 		actionsMenu.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		bar.add(actionsMenu);
-		JMenu optionsMenu = new JMenu("Options");
+		JMenu optionsMenu = new JMenu(LanguageFile.CURRENT.menuOptions);
 		optionsMenu.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		bar.add(optionsMenu);
-		JMenu helpMenu = new JMenu("Help");
+		JMenu helpMenu = new JMenu(LanguageFile.CURRENT.menuHelp);
 		helpMenu.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		bar.add(helpMenu);
-		importMidiMenuItem = addMenuItem("Import MIDI", new ActionListener(){
+		importMidiMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsImport, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				importMidi();
 			}}, actionsMenu);
-		removeMidiMenuItem = addMenuItem("Remove selected MIDI", new ActionListener(){
+		removeMidiMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsRemove, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
 					if(converterThread.isAlive()){
@@ -416,7 +414,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 					midiListModel.remove(midiList.getSelectedIndex());
 				}
 			}}, actionsMenu);
-		clearMidiListMenuItem = addMenuItem("Clear MIDIs list", new ActionListener(){
+		clearMidiListMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsClearMIDIsList, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
 					if(converterThread.isAlive()){
@@ -427,36 +425,36 @@ public class KeppysMidiConverterPanel extends JPanel {
 				midiListModel.clear();
 			}}, actionsMenu);
 		actionsMenu.addSeparator();
-		addMenuItem("Open the soundfonts manager", new ActionListener(){
+		addMenuItem(LanguageFile.CURRENT.menuActionsOpenSfManager, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				sfManager.setVisible(true);
 			}}, actionsMenu);
 		actionsMenu.addSeparator();
-		startConversionMenuItem = addMenuItem("Render files to Wave (.WAV)", new ActionListener(){
+		startConversionMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsRenderWav, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				startConversion(0);
 			}}, actionsMenu);
-		startOggConversionMenuItem = addMenuItem("Render files to Vorbis (.OGG)", new ActionListener(){
+		startOggConversionMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsRenderOgg, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				startConversion(1);
 			}}, actionsMenu);
-		previewFilesMenuItem = addMenuItem("Preview files (Real-time playback)", new ActionListener(){
+		previewFilesMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsPreview, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				startConversion(2);
 			}}, actionsMenu);
-		abortRenderingMenuItem = addMenuItem("Abort rendering", new ActionListener(){
+		abortRenderingMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsAbort, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				abortConversion();
 			}}, actionsMenu);
 		abortRenderingMenuItem.setEnabled(false);
 		actionsMenu.addSeparator();
-		addMenuItem("Exit", new ActionListener(){
+		addMenuItem(LanguageFile.CURRENT.menuActionsExit, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				abortConversion();
 				finishUp();
 			}}, actionsMenu);
-		addMenuItem("Information about the program", new ActionListener(){public void actionPerformed(ActionEvent event){information.setVisible(true);}}, helpMenu);
-		addMenuItem("Support the developer with a donation", new ActionListener(){
+		addMenuItem(LanguageFile.CURRENT.menuHelpInformation, new ActionListener(){public void actionPerformed(ActionEvent event){information.setVisible(true);}}, helpMenu);
+		addMenuItem(LanguageFile.CURRENT.menuHelpSupport, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 	            String url = "";
 
@@ -475,41 +473,41 @@ public class KeppysMidiConverterPanel extends JPanel {
 	            openWebpage(url);
 			}}, helpMenu);
 		helpMenu.addSeparator();
-		JMenu stuffMenu = new JMenu("Black MIDI stuff");
+		JMenu stuffMenu = new JMenu(LanguageFile.CURRENT.menuHelpBlackMidi);
 		stuffMenu.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		helpMenu.add(stuffMenu);
-		JMenuItem youtubeItem = new JMenuItem("KaleidonKep99's YouTube Channel");
+		JMenuItem youtubeItem = new JMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiKeppsYoutube);
 		youtubeItem.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		youtubeItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://www.youtube.com/channel/UCJeqODojIv4TdeHcBfHJRnA");
 			}});
 		stuffMenu.add(youtubeItem);
-		addMenuItem("TheGhastModding's YouTube Channel", new ActionListener(){
+		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiTgmsYoutube, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://www.youtube.com/channel/UCB8EPwooLFYoApIaXK3jpRg");
 			}}, stuffMenu);
 		stuffMenu.addSeparator();
-		addMenuItem("Official Black MIDI Wikia", new ActionListener(){
+		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiWiki, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("http://officialblackmidi.wikia.com/wiki/Official_Black_MIDI_Wikia");
 			}}, stuffMenu);
-		addMenuItem("Official Black MIDI Community (Google+)", new ActionListener(){
+		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiGPlus, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://plus.google.com/communities/105907289212970966669");
 			}}, stuffMenu);
 		stuffMenu.addSeparator();
-		addMenuItem("Wikipedia's page", new ActionListener(){
+		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiWikipedia, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://en.wikipedia.org/wiki/Black_MIDI");
 			}}, stuffMenu);
-		addOptionMenuItem("Automatically check for updates when starting the converter", optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){checkUpdatesOnStart = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){checkUpdatesOnStart = false;saveOptions(advancedSettings);}}, checkUpdatesOnStart);
-		addOptionMenuItem("Automatic shutdown after rendering", optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){shutdownAfterRendering = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){shutdownAfterRendering = false;saveOptions(advancedSettings);}}, shutdownAfterRendering);
-		addOptionMenuItem("Clear MIDIs list after rendering", optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){clearMIDIsListAfterRendering = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){clearMIDIsListAfterRendering = false;saveOptions(advancedSettings);}}, clearMIDIsListAfterRendering);
-		addOptionMenuItem("Show conversion position instead of time left", optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){showConversionPosition = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){showConversionPosition = false;saveOptions(advancedSettings);}}, showConversionPosition);
-		addMenuItem("Crash the application", new ActionListener(){
+		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsCheckUpdates, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){checkUpdatesOnStart = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){checkUpdatesOnStart = false;saveOptions(advancedSettings);}}, checkUpdatesOnStart);
+		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsShutdown, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){shutdownAfterRendering = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){shutdownAfterRendering = false;saveOptions(advancedSettings);}}, shutdownAfterRendering);
+		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsClearAfterRendering, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){clearMIDIsListAfterRendering = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){clearMIDIsListAfterRendering = false;saveOptions(advancedSettings);}}, clearMIDIsListAfterRendering);
+		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsShowConversionPosition, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){showConversionPosition = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){showConversionPosition = false;saveOptions(advancedSettings);}}, showConversionPosition);
+		addMenuItem(LanguageFile.CURRENT.menuOptionsCrash, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
-				System.exit(0);
+				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "Application was forcefully crashed by user", true);
 			}}, optionsMenu);
 	}
 	
@@ -526,13 +524,13 @@ public class KeppysMidiConverterPanel extends JPanel {
 		int option = midiChooser.showOpenDialog(KeppysMidiConverter.frame);
 		if(option == JFileChooser.APPROVE_OPTION){
 			if(!midiChooser.getSelectedFile().exists()){
-				JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "The selected file doesnt exist", "Error", JOptionPane.ERROR_MESSAGE);
+				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "The selected file doesnt exist", false);
 				return;
 			}
 			if(midiChooser.accept(midiChooser.getSelectedFile())){
 				midiListModel.addElement(midiChooser.getSelectedFile().getPath());
 			}else{
-				JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "That isnt a MIDI!", "Error", JOptionPane.ERROR_MESSAGE);
+				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "That isnt a MIDI!", false);
 				return;
 			}
 		}
@@ -543,16 +541,16 @@ public class KeppysMidiConverterPanel extends JPanel {
 	 */
 	private void startConversion(int mode){
 		if(midiListModel.isEmpty()){
-			JOptionPane.showMessageDialog(this, "Cant start conversion: add some MIDIs to convert first");
+			ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "Cant start conversion: add some MIDIs to convert first", false);
 			return;
 		}
 		if(sfManager.listModel.isEmpty()){
-			JOptionPane.showMessageDialog(this, "Cant start conversion: add some soundfonts to convert with first");
+			ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "Cant start conversion: add some soundfonts to convert with first", false);
 			return;
 		}
 		if(converterThread != null){ //to prevent crash with next if statement
 			if(converterThread.isAlive()){ //check if its allready converting something
-				JOptionPane.showMessageDialog(this, "Cant start conversion: the converter is allready converting MIDIs");
+				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "Cant start conversion: the converter is allready converting MIDIs", false);
 				return;
 			}
 		}
@@ -560,8 +558,8 @@ public class KeppysMidiConverterPanel extends JPanel {
 			if(folderChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION){
 				return;
 			}
-			if(!folderChooser.getSelectedFile().exists()){
-				JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "The selected directory doesnt exist", "Error", JOptionPane.ERROR_MESSAGE);
+			if(!folderChooser.getSelectedFile().exists()){;
+				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "The selected directory doesnt exist", false);
 				return;
 			}
 		}
@@ -614,8 +612,8 @@ public class KeppysMidiConverterPanel extends JPanel {
 			try {
 				Runtime.getRuntime().exec("shutdown /s /t 0");
 			} catch(Exception e){
-				JOptionPane.showMessageDialog(this, "Error shuting down computer after rendering");
 				e.printStackTrace();
+				ErrorMessage.showErrorMessage(KeppysMidiConverter.frame, "Error shuting down computer after rendering",e, true);
 			}
 		}
 		progressBar.setValue(0);
@@ -644,12 +642,12 @@ public class KeppysMidiConverterPanel extends JPanel {
 		JMenu updateOptionMenu = new JMenu(title);
 		updateOptionMenu.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		menu.add(updateOptionMenu);
-		JRadioButtonMenuItem updateOptionEnabledItem = new JRadioButtonMenuItem("Enabled");
+		JRadioButtonMenuItem updateOptionEnabledItem = new JRadioButtonMenuItem(LanguageFile.CURRENT.menuOptionsEnabled);
 		updateOptionEnabledItem.addActionListener(enabledActionListener);
 		updateOptionEnabledItem.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		updateOptionEnabledItem.setSelected(defaultValue);
 		updateOptionMenu.add(updateOptionEnabledItem);
-		JRadioButtonMenuItem updateOptionDisabledItem = new JRadioButtonMenuItem("Disabled");
+		JRadioButtonMenuItem updateOptionDisabledItem = new JRadioButtonMenuItem(LanguageFile.CURRENT.menuOptionsDisabled);
 		updateOptionDisabledItem.addActionListener(disabledActionListener);
 		updateOptionDisabledItem.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		updateOptionDisabledItem.setSelected(!defaultValue);

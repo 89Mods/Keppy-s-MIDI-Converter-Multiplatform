@@ -14,7 +14,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -206,17 +205,17 @@ public class SoundfontManager extends JDialog {
 		int option = soundfontChooser.showOpenDialog(KeppysMidiConverter.frame);
 		if(option == JFileChooser.APPROVE_OPTION){
 			if(!soundfontChooser.getSelectedFile().exists()){
-				JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "The selected file doesnt exist", "Error", JOptionPane.ERROR_MESSAGE);
+				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "The selected file doesnt exist", false);
 				return;
 			}
 			if(soundfontChooser.getSelectedFile().getName().endsWith(".exe")){
-				JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "Are you seriously trying to add executables to the soundfont list?", "Rly?", JOptionPane.ERROR_MESSAGE);
+				new ErrorMessage(KeppysMidiConverter.frame, "Rly?", "Are you seriously trying to add executables to the soundfont list?", false, false);
 				return;
 			}
 			if(soundfontChooser.accept(soundfontChooser.getSelectedFile())){
 				listModel.addElement(soundfontChooser.getSelectedFile().getPath());
 			}else{
-				JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "That isnt a soundfont!", "Error", JOptionPane.ERROR_MESSAGE);
+				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "That isnt a soundfont!", false);
 				return;
 			}
 		}

@@ -23,7 +23,7 @@ public class Textures {
 		sfzcomp = ImageIO.read(Textures.class.getResourceAsStream("/sfzcomp.png"));
 		updatebk = ImageIO.read(Textures.class.getResourceAsStream("/updatebk.png"));
 		logo = ImageIO.read(Textures.class.getResourceAsStream("/mainlogo.png"));
-		warningicon = ImageIO.read(Textures.class.getResourceAsStream("/warning.png"));
+		warningicon = ImageIO.read(Textures.class.getResourceAsStream("/warningicon.png"));
 	}
 	
 }
