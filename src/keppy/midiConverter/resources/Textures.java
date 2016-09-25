@@ -14,6 +14,7 @@ public class Textures {
 	public static BufferedImage updatebk;
 	public static BufferedImage logo;
 	public static BufferedImage warningicon = null;
+	public static BufferedImage afd;
 	
 	public static void load() throws Exception {
 		icon = ImageIO.read(Textures.class.getResourceAsStream("/icon.png"));
@@ -24,6 +25,7 @@ public class Textures {
 		updatebk = ImageIO.read(Textures.class.getResourceAsStream("/updatebk.png"));
 		logo = ImageIO.read(Textures.class.getResourceAsStream("/mainlogo.png"));
 		warningicon = ImageIO.read(Textures.class.getResourceAsStream("/warningicon.png"));
+		afd = ImageIO.read(Textures.class.getResourceAsStream("/afd.png"));
 	}
 	
 }

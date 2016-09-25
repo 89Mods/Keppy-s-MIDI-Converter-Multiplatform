@@ -106,6 +106,7 @@ public class AdvancedSettings extends JDialog {
 		
 		chckbxForceConstantBitrate = new JCheckBox("Force constant bitrate (OGG Vorbis)");
 		bitrateComboBox = new JComboBox<String>();
+		bitrateComboBox.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		chckbxForceConstantBitrate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(chckbxForceConstantBitrate.isSelected()){

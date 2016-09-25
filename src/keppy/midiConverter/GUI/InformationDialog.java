@@ -22,6 +22,8 @@ import java.awt.Desktop;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.net.URL;
 import java.awt.event.ActionEvent;
@@ -29,7 +31,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.SwingConstants;
 
 @SuppressWarnings("serial")
-public class InformationDialog extends JDialog {
+public class InformationDialog extends JDialog implements MouseListener {
 	
 	public InformationDialog(JFrame frame){
 		super(frame, "Information");
@@ -193,7 +195,7 @@ public class InformationDialog extends JDialog {
 				if(update == 1){
 					int option = JOptionPane.showConfirmDialog(frame, "An new version is available to download. Would you like to download it now?", "Message", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if(option == 0){
-						KeppysMidiConverterPanel.openWebpage("https://github.com/KaleidonKep99/Keppys-MIDI-Converter/releases");
+						KeppysMidiConverterPanel.openWebpage("https://github.com/89Mods/Keppy-s-MIDI-Converter-Multiplatform/releases");
 					}
 				}else if(update == 2){
 					JOptionPane.showMessageDialog(frame, "You have a newer version of the converter then the most recent available one. Strange, isnt it?", "You dirty hacker!", JOptionPane.WARNING_MESSAGE);
@@ -258,6 +260,8 @@ public class InformationDialog extends JDialog {
 		panel.add(btnDonate);
 		setResizable(false);
 		
+		panel_1.addMouseListener(this);
+		
 		pack();
 	}
 	
@@ -265,4 +269,34 @@ public class InformationDialog extends JDialog {
 	{
 	    return "<html>" + orig.replaceAll("\n", "<br>");
 	}
+	
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		
+	}
+	
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		
+	}
+	
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		
+	}
+	
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		
+	}
+	
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		if(arg0.getX() >= 267 && arg0.getX() <= 289){
+			if(arg0.getY() >= 10 && arg0.getY() <= 20){
+				new EasterEgg();
+			}
+		}
+	}
+	
 }

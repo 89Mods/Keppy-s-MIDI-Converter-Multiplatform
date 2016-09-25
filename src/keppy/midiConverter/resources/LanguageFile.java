@@ -46,6 +46,17 @@ public class LanguageFile {
 	public String menuHelpBlackMidiWiki;
 	public String menuHelpBlackMidiGPlus;
 	public String menuHelpBlackMidiWikipedia;
+	public String mainWindowVoices;
+	public String mainWindowVolume;
+	public String mainWindowSettings;
+	public String mainWindowBtnAdvancedSettings;
+	public String mainWindowVoiceLimit;
+	public String mainWindowMidiListPopupUp;
+	public String mainWindowMidiListPopupDown;
+	public String mainWindowStatusIdle1;
+	public String mainWindowStatusIdle2;
+	public String fileSelectorImportMidiTitle;
+	public String fileSelectSelectSaveLocationTitle;
 	
 	public LanguageFile(String languageName){
 		this.languageName = languageName;
@@ -90,6 +101,17 @@ public class LanguageFile {
 			menuHelpBlackMidiWiki = getLanguageFileEntry("menu.help.blackMidi.wiki");
 			menuHelpBlackMidiGPlus = getLanguageFileEntry("menu.help.blackMidi.gPlus");
 			menuHelpBlackMidiWikipedia = getLanguageFileEntry("menu.help.blackMidi.wikipedia");
+			mainWindowVoices = getLanguageFileEntry("mainWindow.voices");
+			mainWindowVolume = getLanguageFileEntry("mainWindow.volume");
+			mainWindowSettings = getLanguageFileEntry("mainWindow.settings");
+			mainWindowBtnAdvancedSettings = getLanguageFileEntry("mainWindow.btnAdvSettings");
+			mainWindowVoiceLimit = getLanguageFileEntry("mainWindow.voiceLimit");
+			mainWindowMidiListPopupUp = getLanguageFileEntry("mainWindow.midiListPopup.up");
+			mainWindowMidiListPopupDown = getLanguageFileEntry("mainWindow.midiListPopup.down");
+			mainWindowStatusIdle1 = getLanguageFileEntry("mainWindow.status.idle.1");
+			mainWindowStatusIdle2 = getLanguageFileEntry("mainWindow.status.idle.2");
+			fileSelectorImportMidiTitle = getLanguageFileEntry("fileSelector.importMidi.title");
+			fileSelectSelectSaveLocationTitle = getLanguageFileEntry("fileSelector.selectSaveLocation.title");
 			
 		} catch(Exception e){
 			e.printStackTrace();
@@ -103,7 +125,7 @@ public class LanguageFile {
 			String s = entry;
 			if(entry.startsWith(entryName)){
 				s = s.replaceAll(entryName + "=", "");
-				return s;
+				return s.replace("[newline]", "\n");
 			}
 		}
 		return "[error]";
@@ -137,6 +159,18 @@ public class LanguageFile {
 		menuHelpBlackMidiWiki = "Official Black MIDI Wikia";
 		menuHelpBlackMidiGPlus = "Official Black MIDI Community (Google+)";
 		menuHelpBlackMidiWikipedia = "Wikipedia's page";
+		mainWindowVoices = "Voices:";
+		mainWindowVolume = "Volume:";
+		mainWindowSettings = "Settings";
+		mainWindowBtnAdvancedSettings = "Advanced Settings";
+		mainWindowVoiceLimit = "Voice Limit:";
+		mainWindowMidiListPopupUp = "Move up";
+		mainWindowMidiListPopupDown = "Move down";
+		mainWindowStatusIdle1 = "Idle.";
+		mainWindowStatusIdle2 = "Select a MIDI, and load your soundonts to start the conversion/playback";
+		fileSelectorImportMidiTitle = "Import a MIDI";
+		fileSelectSelectSaveLocationTitle = "Select location to save files in";
+		
 	}
 	
 	public static void loadCurrentLanguage(int language){

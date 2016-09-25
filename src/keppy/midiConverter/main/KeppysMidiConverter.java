@@ -7,7 +7,6 @@ import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
 import keppy.midiConverter.GUI.ErrorMessage;
 import keppy.midiConverter.GUI.KeppysMidiConverterPanel;
 
@@ -17,9 +16,9 @@ import keppy.midiConverter.GUI.KeppysMidiConverterPanel;
 public class KeppysMidiConverter {
 	
 	public static final String NAME = "Keppy and TGM's MIDI Converter";
-	public static final int VERSION_MAJOR = 12;
-	public static final int VERSION_MINOR = 3;
-	public static final int VERSION_PATCH = 0;
+	public static final int VERSION_MAJOR = 13;
+	public static final int VERSION_MINOR = 0;
+	public static final int VERSION_PATCH = 7;
 	public static final String VERSION = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH;
 	
 	//Main Window
@@ -39,7 +38,6 @@ public class KeppysMidiConverter {
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension d = kit.getScreenSize();
 		frame.setLocation((int)(d.getWidth() / 2 - 326), (int)(d.getHeight() / 2 -  205));
-		
 		frame.pack();
 		frame.setVisible(true);
 		//Check for updates
@@ -49,7 +47,7 @@ public class KeppysMidiConverter {
 				int option = JOptionPane.showConfirmDialog(frame, "An new version is available to download. Would you like to download it now?", "Message", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if(option == 0){
 					try {
-						Desktop.getDesktop().browse(new URL("https://github.com/KaleidonKep99/Keppys-MIDI-Converter/releases").toURI());
+						Desktop.getDesktop().browse(new URL("https://github.com/89Mods/Keppy-s-MIDI-Converter-Multiplatform/releases").toURI());
 					} catch(Exception e2){
 			        	ErrorMessage.showErrorMessage(frame, "Error opening download page", e2, false);
 			        	e2.printStackTrace();

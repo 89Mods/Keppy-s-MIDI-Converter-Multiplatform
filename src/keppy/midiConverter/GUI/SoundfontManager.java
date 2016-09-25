@@ -35,7 +35,7 @@ import java.awt.event.MouseEvent;
 public class SoundfontManager extends JDialog {
 	
 	public DefaultListModel<String> listModel;
-	private JFileChooser soundfontChooser;
+	public static JFileChooser soundfontChooser;
 	
 	/*
 	 * Generate window components
@@ -56,7 +56,7 @@ public class SoundfontManager extends JDialog {
 		lblSfzimage.setBounds(523, 57, 46, 37);
 		panel.add(lblSfzimage);
 		
-		JLabel lblInfo = new JLabel(convertToMultiline("Use up to 2.147.483.648 soundfonts at once, to convert your MIDIs. \nThe first soundfont in the list will always override the latest ones.\nCheck if the soundfonts are not corrupted, before adding them to the list, to avoid random crashes/glitches.\n\nThe following formats are supported:"));
+		JLabel lblInfo = new JLabel(convertToMultiline("Use up to 2.147.483.648 soundfonts at once, to convert your MIDIs. \nThe first soundfont in the list will always override the latest ones.\nCheck if the soundfonts are not corrupted, before adding them to the list, to avoid random crashes/glitches.\nThe following formats are supported:"));
 		lblInfo.setHorizontalAlignment(SwingConstants.LEFT);
 		lblInfo.setVerticalAlignment(SwingConstants.TOP);
 		lblInfo.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
@@ -66,7 +66,7 @@ public class SoundfontManager extends JDialog {
 		JLabel lblFormats = new JLabel("SF2, SF3 (No full support), SFZ, SFPACK");
 		lblFormats.setForeground(new Color(139, 0, 0));
 		lblFormats.setFont(new Font(KeppysMidiConverterPanel.font, Font.BOLD, 12));
-		lblFormats.setBounds(214, 84, 221, 14);
+		lblFormats.setBounds(214, 74, 221, 14);
 		panel.add(lblFormats);
 		
 		JList<String> list = new JList<String>();
@@ -218,6 +218,8 @@ public class SoundfontManager extends JDialog {
 				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "That isnt a soundfont!", false);
 				return;
 			}
+			KeppysMidiConverterPanel.sfSelectorDirectory = soundfontChooser.getCurrentDirectory().getPath();
+			KeppysMidiConverterPanel.saveOptions(KeppysMidiConverterPanel.advancedSettings);
 		}
 	}
 	
