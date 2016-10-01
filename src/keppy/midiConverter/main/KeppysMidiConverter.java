@@ -7,6 +7,8 @@ import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+
 import keppy.midiConverter.GUI.ErrorMessage;
 import keppy.midiConverter.GUI.KeppysMidiConverterPanel;
 
@@ -16,9 +18,9 @@ import keppy.midiConverter.GUI.KeppysMidiConverterPanel;
 public class KeppysMidiConverter {
 	
 	public static final String NAME = "Keppy and TGM's MIDI Converter";
-	public static final int VERSION_MAJOR = 13;
+	public static final int VERSION_MAJOR = 14;
 	public static final int VERSION_MINOR = 0;
-	public static final int VERSION_PATCH = 7;
+	public static final int VERSION_PATCH = 2;
 	public static final String VERSION = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH;
 	
 	//Main Window
@@ -28,6 +30,12 @@ public class KeppysMidiConverter {
 	 * Application entry point/create frame and Panel
 	 */
 	public static void main(String[] args){
+		try {
+	        UIManager.setLookAndFeel(
+	                UIManager.getSystemLookAndFeelClassName());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		frame = new JFrame(NAME);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//frame.setPreferredSize(new Dimension(652, 434 + 32));

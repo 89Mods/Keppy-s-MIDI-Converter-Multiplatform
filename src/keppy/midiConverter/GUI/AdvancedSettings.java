@@ -61,7 +61,7 @@ public class AdvancedSettings extends JDialog {
 		JPanel panel_1 = new JPanel();
 		panel_1.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		panel_1.setBorder(new TitledBorder(null, "Settings", TitledBorder.LEADING, TitledBorder.TOP, new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12), null));
-		panel_1.setBounds(5, 2, 394, 139);
+		panel_1.setBounds(5, 2, 394, 142);
 		panel.add(panel_1);
 		panel_1.setLayout(null);
 		
