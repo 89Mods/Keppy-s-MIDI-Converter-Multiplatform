@@ -38,6 +38,18 @@ public class JLabelGifPlayer implements Runnable {
 		for (int i = 0, count = reader.getNumImages(true); i < count; i++)
 		{
 			BufferedImage image = reader.read(i);
+			/*frames[i] = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			Graphics g = frames[i].getGraphics();
+			g.setColor(Color.WHITE);
+			g.fillRect(0, 0, image.getWidth(), image.getHeight());
+			g.drawImage(image, 0, 0, null);*/
+			/*if(i != 0) {
+				frames[i] = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				Graphics g = frames[i].getGraphics();
+				g.drawImage(frames[i - 1], 0, 0, null);
+				g.drawImage(image, 0, 0, null);
+				g.dispose();
+			}*/
 			frames[i] = image;
 		}
 		} catch(Exception e){

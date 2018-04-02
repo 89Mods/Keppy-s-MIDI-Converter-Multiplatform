@@ -18,10 +18,11 @@ import keppy.midiConverter.GUI.KeppysMidiConverterPanel;
 public class KeppysMidiConverter {
 	
 	public static final String NAME = "Keppy and TGM's MIDI Converter";
-	public static final int VERSION_MAJOR = 14;
-	public static final int VERSION_MINOR = 0;
-	public static final int VERSION_PATCH = 2;
+	public static final int VERSION_MAJOR = 15;
+	public static final int VERSION_MINOR = 1;
+	public static final int VERSION_PATCH = 3;
 	public static final String VERSION = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH;
+	public static final boolean muted = true;
 	
 	//Main Window
 	public static JFrame frame;
@@ -35,6 +36,11 @@ public class KeppysMidiConverter {
 	                UIManager.getSystemLookAndFeelClassName());
 		}catch(Exception e){
 			e.printStackTrace();
+		}
+		String osName = System.getProperty("os.name");
+		if(osName != null && osName.toUpperCase().contains("WINDOWS") && !System.getProperty("user.name").equals("Administrator")){
+			JOptionPane.showMessageDialog(frame, "I see you're trying to use the java version of KMC under Windows (however you got that to work), but please don't do that.\nThis version of KMC is supposed to be used on Linux based OSes or MacOS/OS X. Please use the original C# version of the converter under windows.\nYou can get it over at https://github.com/KaleidonKep99/Keppys-MIDI-Converter/releases\nIf you're here because C# KMC doesn't work for you, please go to the link but go to \"Issues\" and create a new Issue. Describe your problem in detail and the creator will reply soon to help you fix it.", "Error", JOptionPane.ERROR_MESSAGE);
+			//System.exit(1);
 		}
 		frame = new JFrame(NAME);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

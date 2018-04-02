@@ -1,37 +1,35 @@
 package keppy.midiConverter.GUI;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
+import javax.swing.SwingConstants;
 import keppy.midiConverter.main.KeppysMidiConverter;
 import keppy.midiConverter.main.Updater;
 import keppy.midiConverter.resources.ResourceExtractor;
 import keppy.midiConverter.resources.Textures;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.Font;
-import java.awt.Color;
-import java.awt.Desktop;
-
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.File;
-import java.net.URL;
-import java.awt.event.ActionEvent;
-import javax.swing.border.BevelBorder;
-import javax.swing.SwingConstants;
-
 @SuppressWarnings("serial")
-public class InformationDialog extends JDialog implements MouseListener {
+public class InformationDialog extends JDialog implements MouseListener, KeyListener {
 	
 	public InformationDialog(JFrame frame){
 		super(frame, "Information");
@@ -39,13 +37,13 @@ public class InformationDialog extends JDialog implements MouseListener {
 		setLocationRelativeTo(frame);
 		setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(545, 345));
+		panel.setPreferredSize(new Dimension(545, 295));
 		this.setContentPane(panel);
 		panel.setLayout(null);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		tabbedPane.setBounds(1, 1, 545, 304);
+		tabbedPane.setBounds(1, 1, 545, 254);
 		panel.add(tabbedPane);
 		
 		JPanel panel_1 = new JPanel();
@@ -69,14 +67,15 @@ public class InformationDialog extends JDialog implements MouseListener {
 		lblCompiledFor.setBounds(212, 21, 316, 16);
 		panel_1.add(lblCompiledFor);
 		
-		JLabel lblCopyright = new JLabel(convertToMultiline("Copyright(C) 2013-2016, KaleidonKep99\n\nThis program is based around the great BASS libraries\nby Ian Luck from Un4seen Developments and NativeBass by Jérôme Jouvie. Take a look at Ian's site by clicking the \"un4seen.com\" button and Jérôme's with the \"NativeBass website\" button. Source code for KMC available here:"));
+		JLabel lblCopyright = new JLabel(convertToMultiline("Copyright(C) 2013-2017, KaleidonKep99\n\nThis program is based around the great BASS libraries\nby Ian Luck from Un4seen Developments and NativeBass by Jérôme Jouvie. Take a look at Ian's site by clicking the \"un4seen.com\" button and Jérôme's with the \"NativeBass website\" button. Source code available here:"));
 		lblCopyright.setHorizontalAlignment(SwingConstants.LEFT);
 		lblCopyright.setVerticalAlignment(SwingConstants.TOP);
 		lblCopyright.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		lblCopyright.setBounds(212, 47, 316, 104);
 		panel_1.add(lblCopyright);
 		
-		JButton btnSourceCode = new JButton("Source code on github");
+		JButton btnSourceCode = new JButton("https://github.com/89Mods/Keppy-s-MIDI-Converter-Multiplatform");
+		btnSourceCode.setHorizontalAlignment(SwingConstants.LEFT);
 		btnSourceCode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				KeppysMidiConverterPanel.openWebpage("https://github.com/89Mods/Keppy-s-MIDI-Converter-Multiplatform");
@@ -86,8 +85,8 @@ public class InformationDialog extends JDialog implements MouseListener {
 		btnSourceCode.setContentAreaFilled(false);
 		btnSourceCode.setBorderPainted(false);
 		btnSourceCode.setForeground(new Color(0,0,255));
-		btnSourceCode.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		btnSourceCode.setBounds(212, 151, 290, 16);
+		btnSourceCode.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 10));
+		btnSourceCode.setBounds(216, 151, 337, 16);
 		panel_1.add(btnSourceCode);
 		
 		JButton btnLicense = new JButton("License");
@@ -107,52 +106,7 @@ public class InformationDialog extends JDialog implements MouseListener {
 		btnLicense.setBounds(219, 185, 102, 23);
 		panel_1.add(btnLicense);
 		
-		JPanel panelJavainfo = new JPanel();
-		panelJavainfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		panelJavainfo.setBackground(Color.WHITE);
-		panelJavainfo.setBounds(6, 214, 525, 58);
-		panel_1.add(panelJavainfo);
-		panelJavainfo.setLayout(null);
-		
-		JLabel lblJavaVersion = new JLabel("Java version: " + System.getProperty("java.version"));
-		lblJavaVersion.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
-		lblJavaVersion.setBounds(4, 1, 510, 16);
-		panelJavainfo.add(lblJavaVersion);
-		
-		/*
-		 * Win versions:
-		 * BASS version: 2.4.12.8
-		 * BASSMIDI version: 2.4.9.30
-		 * BASSenc version: 2.4.12.9
-		 */
-		/*
-		 * Linux/Mac version:
-		 * BASS version: 2.4.12.1
-		 * BASSMIDI version: 2.4.9.0
-		 * BASSenc version: 2.4.13.0
-		 */
-		
-		JLabel lblA = new JLabel("BASS version: 2.4.12.8");
-		lblA.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
-		lblA.setBounds(4, 14, 510, 16);
-		panelJavainfo.add(lblA);
-		
-		JLabel lblB = new JLabel("BASSMIDI version: 2.4.9.30");
-		lblB.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
-		lblB.setBounds(4, 28, 521, 16);
-		panelJavainfo.add(lblB);
-		
-		JLabel lblC = new JLabel("BASSenc version: 2.4.12.9");
-		lblC.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
-		lblC.setBounds(4, 42, 510, 16);
-		panelJavainfo.add(lblC);
-		
-		JLabel lblNativebassVersion = new JLabel("NativeBass version: 1.1.2");
-		lblNativebassVersion.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
-		lblNativebassVersion.setBounds(393, 1, 124, 16);
-		panelJavainfo.add(lblNativebassVersion);
-		
-		JButton btnUnseencom = new JButton("un4seen.com");
+		JButton btnUnseencom = new JButton("Un4seen site");
 		btnUnseencom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				KeppysMidiConverterPanel.openWebpage("http://www.un4seen.com/");
@@ -180,48 +134,51 @@ public class InformationDialog extends JDialog implements MouseListener {
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.WHITE);
-		tabbedPane.addTab("Updater", null, panel_2, null);
+		tabbedPane.addTab("Updates", null, panel_2, null);
 		panel_2.setLayout(null);
 		
 		JLabel lblImage = new JLabel("");
 		lblImage.setIcon(new ImageIcon(Textures.updatebk));
-		lblImage.setBounds(170, 78, 387, 206);
+		lblImage.setBounds(-20, -40, 555, 270);
 		panel_2.add(lblImage);
 		
-		JButton btnCheckForUpdates = new JButton("Check");
-		btnCheckForUpdates.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int update = Updater.checkForUpdates();
-				if(update == 1){
-					int option = JOptionPane.showConfirmDialog(frame, "An new version is available to download. Would you like to download it now?", "Message", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-					if(option == 0){
-						KeppysMidiConverterPanel.openWebpage("https://github.com/89Mods/Keppy-s-MIDI-Converter-Multiplatform/releases");
-					}
-				}else if(update == 2){
-					JOptionPane.showMessageDialog(frame, "You have a newer version of the converter then the most recent available one. Strange, isnt it?", "You dirty hacker!", JOptionPane.WARNING_MESSAGE);
-				}else if(update == 0){
-					JOptionPane.showMessageDialog(frame, "This release is allready updated.", "No updates found.", JOptionPane.INFORMATION_MESSAGE);
-				}
-			}
-		});
-		btnCheckForUpdates.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		btnCheckForUpdates.setBounds(425, 6, 106, 23);
-		panel_2.add(btnCheckForUpdates);
-		
 		JLabel lblKmcUpdateChecker = new JLabel("KMC's Update Checker");
-		lblKmcUpdateChecker.setFont(new Font(KeppysMidiConverterPanel.font, Font.BOLD, 20));
+		lblKmcUpdateChecker.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 20));
 		lblKmcUpdateChecker.setBounds(5, 4, 220, 27);
 		panel_2.add(lblKmcUpdateChecker);
 		
-		JLabel lblCurrentVersion = new JLabel("The current version of the driver, installed on your system, is: " + KeppysMidiConverter.VERSION);
+		JLabel lblCurrentVersion = new JLabel("The current version of the converter, installed on your system, is: " + KeppysMidiConverter.VERSION);
 		lblCurrentVersion.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		lblCurrentVersion.setBounds(7, 46, 381, 16);
+		lblCurrentVersion.setBounds(7, 46, 416, 16);
 		panel_2.add(lblCurrentVersion);
 		
 		JLabel lblClickOnCheck = new JLabel("Click on \"Check\" to check for the latest version of the converter.");
 		lblClickOnCheck.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		lblClickOnCheck.setBounds(7, 62, 375, 16);
 		panel_2.add(lblClickOnCheck);
+		
+		JButton btnCheckForUpdates = new JButton("Check for updates");
+		btnCheckForUpdates.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int update = Updater.checkForUpdates();
+				if(update == 1){
+					lblClickOnCheck.setText("A new version is available: " + Integer.toString(Updater.newMajor) + "." + Integer.toString(Updater.newMinor) + "." + Integer.toString(Updater.newPatch));
+					int option = JOptionPane.showConfirmDialog(frame, "An new version is available to download. Would you like to download it now?", "Message", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(option == 0){
+						KeppysMidiConverterPanel.openWebpage("https://github.com/89Mods/Keppy-s-MIDI-Converter-Multiplatform/releases");
+					}
+				}else if(update == 2){
+					lblClickOnCheck.setText("You have a newer version. Somehow.");
+					JOptionPane.showMessageDialog(frame, "You have a newer version of the converter then the most recent available one. Strange, isnt it?", "You dirty hacker!", JOptionPane.WARNING_MESSAGE);
+				}else if(update == 0){
+					lblClickOnCheck.setText("No updates have been found. Please try later.");
+					JOptionPane.showMessageDialog(frame, "No updates have been found. Please try again later.", "No updates found.", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
+		btnCheckForUpdates.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
+		btnCheckForUpdates.setBounds(402, 4, 128, 21);
+		panel_2.add(btnCheckForUpdates);
 		
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
@@ -230,10 +187,10 @@ public class InformationDialog extends JDialog implements MouseListener {
 			}
 		});
 		btnOk.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		btnOk.setBounds(460, 312, 75, 23);
+		btnOk.setBounds(460, 262, 75, 23);
 		panel.add(btnOk);
 		
-		JButton btnDonate = new JButton("");
+		JButton btnDonate = new JButton("Donate with PayPal");
 		btnDonate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 	            String url = "";
@@ -254,13 +211,23 @@ public class InformationDialog extends JDialog implements MouseListener {
 	    		KeppysMidiConverterPanel.openWebpage(url);
 			}
 		});
-		btnDonate.setIcon(new ImageIcon(Textures.donatebtn));
+		//btnDonate.setIcon(new ImageIcon(Textures.donatebtn));
 		btnDonate.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		btnDonate.setBounds(10, 310, 142, 27);
+		btnDonate.setBounds(10, 260, 142, 27);
 		panel.add(btnDonate);
 		setResizable(false);
 		
 		panel_1.addMouseListener(this);
+		addKeyListener(this);
+		for(Component c:getComponents()){
+			c.addKeyListener(this);
+		}
+		for(Component c:panel.getComponents()){
+			c.addKeyListener(this);
+		}
+		for(Component c:panel_1.getComponents()){
+			c.addKeyListener(this);
+		}
 		
 		pack();
 	}
@@ -299,4 +266,20 @@ public class InformationDialog extends JDialog implements MouseListener {
 		}
 	}
 	
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_F1){
+			setVisible(false);
+		}
+	}
+	
+	@Override
+	public void keyReleased(KeyEvent e) {
+		
+	}
 }

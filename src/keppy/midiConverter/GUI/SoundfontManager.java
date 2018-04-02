@@ -56,18 +56,12 @@ public class SoundfontManager extends JDialog {
 		lblSfzimage.setBounds(523, 57, 46, 37);
 		panel.add(lblSfzimage);
 		
-		JLabel lblInfo = new JLabel(convertToMultiline("Use up to 2.147.483.648 soundfonts at once, to convert your MIDIs. \nThe first soundfont in the list will always override the latest ones.\nCheck if the soundfonts are not corrupted, before adding them to the list, to avoid random crashes/glitches.\nThe following formats are supported:"));
+		JLabel lblInfo = new JLabel(convertToMultiline("Use up to 1.000 soundfonts at once, to convert your MIDIs. \nThe first soundfont in the list will always override the latest ones.\nCheck if the soundfonts are not corrupted, before adding them to the list, to avoid random crashes/glitches.\nThe following formats are supported: SF2, SF3, SFZ, SFPACK"));
 		lblInfo.setHorizontalAlignment(SwingConstants.LEFT);
 		lblInfo.setVerticalAlignment(SwingConstants.TOP);
 		lblInfo.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		lblInfo.setBounds(12, 9, 557, 87);
 		panel.add(lblInfo);
-		
-		JLabel lblFormats = new JLabel("SF2, SF3 (No full support), SFZ, SFPACK");
-		lblFormats.setForeground(new Color(139, 0, 0));
-		lblFormats.setFont(new Font(KeppysMidiConverterPanel.font, Font.BOLD, 12));
-		lblFormats.setBounds(214, 74, 221, 14);
-		panel.add(lblFormats);
 		
 		JList<String> list = new JList<String>();
 		list.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
@@ -202,6 +196,10 @@ public class SoundfontManager extends JDialog {
 	 * Select and add a soundfont to the list
 	 */
 	private void importSoundfont(){
+		if(listModel.size() >= 1000) {
+			new ErrorMessage(KeppysMidiConverter.frame, "Error", "You can't add more then 1.000 soundfonts", false, false);
+			return;
+		}
 		int option = soundfontChooser.showOpenDialog(KeppysMidiConverter.frame);
 		if(option == JFileChooser.APPROVE_OPTION){
 			if(!soundfontChooser.getSelectedFile().exists()){

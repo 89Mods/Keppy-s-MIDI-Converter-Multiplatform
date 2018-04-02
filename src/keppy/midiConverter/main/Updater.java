@@ -11,6 +11,10 @@ import keppy.midiConverter.resources.FileDownloader;
 
 public class Updater {
 	
+	public static int newMajor;
+	public static int newMinor;
+	public static int newPatch;
+	
 	public static int checkForUpdates(){
 		try {
 			FileDownloader.downloadFile("https://www.dropbox.com/s/61v9ndom0iyeaqq/converter_version.dat?dl=1", "convversion.dat");
@@ -33,6 +37,9 @@ public class Updater {
 			e.printStackTrace();
 			return 0;
 		}
+		newMajor = major;
+		newMinor = minor;
+		newPatch = patch;
 		new File("convversion.dat").delete();
 		if(major == KeppysMidiConverter.VERSION_MAJOR && minor == KeppysMidiConverter.VERSION_MINOR && patch == KeppysMidiConverter.VERSION_PATCH){
 			return 0;

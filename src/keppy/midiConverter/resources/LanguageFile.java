@@ -42,6 +42,7 @@ public class LanguageFile {
 	public String menuHelpSupport;
 	public String menuHelpBlackMidi;
 	public String menuHelpBlackMidiKeppsYoutube;
+	public String menuHelpBlackMidiKeppsGitHub;
 	public String menuHelpBlackMidiTgmsYoutube;
 	public String menuHelpBlackMidiWiki;
 	public String menuHelpBlackMidiGPlus;
@@ -97,6 +98,7 @@ public class LanguageFile {
 			menuHelpSupport = getLanguageFileEntry("menu.help.support");
 			menuHelpBlackMidi = getLanguageFileEntry("menu.help.blackMidi");
 			menuHelpBlackMidiKeppsYoutube = getLanguageFileEntry("menu.help.blackMidi.keppsYoutube");
+			menuHelpBlackMidiKeppsGitHub = getLanguageFileEntry("menu.help.blackMidi.keppsGithub");
 			menuHelpBlackMidiTgmsYoutube = getLanguageFileEntry("menu.help.blackMidi.tgmsYoutube");
 			menuHelpBlackMidiWiki = getLanguageFileEntry("menu.help.blackMidi.wiki");
 			menuHelpBlackMidiGPlus = getLanguageFileEntry("menu.help.blackMidi.gPlus");
@@ -155,6 +157,7 @@ public class LanguageFile {
 		menuHelpSupport = "Support the developer with a donation";
 		menuHelpBlackMidi = "Black MIDI stuff";
 		menuHelpBlackMidiKeppsYoutube = "KaleidonKep99's YouTube Channel";
+		menuHelpBlackMidiKeppsGitHub = "KaleidonKep99's GitHub page";
 		menuHelpBlackMidiTgmsYoutube = "TheGhastModding's Youtube Channel";
 		menuHelpBlackMidiWiki = "Official Black MIDI Wikia";
 		menuHelpBlackMidiGPlus = "Official Black MIDI Community (Google+)";
@@ -163,7 +166,7 @@ public class LanguageFile {
 		mainWindowVolume = "Volume:";
 		mainWindowSettings = "Settings";
 		mainWindowBtnAdvancedSettings = "Advanced Settings";
-		mainWindowVoiceLimit = "Voice Limit:";
+		mainWindowVoiceLimit = "Voice limiter:";
 		mainWindowMidiListPopupUp = "Move up";
 		mainWindowMidiListPopupDown = "Move down";
 		mainWindowStatusIdle1 = "Idle.";

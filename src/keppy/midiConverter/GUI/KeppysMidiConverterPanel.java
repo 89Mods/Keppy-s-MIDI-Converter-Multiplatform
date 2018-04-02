@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -21,9 +23,12 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -33,7 +38,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -43,7 +47,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -64,6 +67,7 @@ import jouvieje.bass.defines.BASS_MIDI;
 import jouvieje.bass.defines.BASS_SAMPLE;
 import jouvieje.bass.defines.BASS_STREAM;
 import jouvieje.bass.structures.BASS_INFO;
+import jouvieje.bass.structures.BASS_MIDI_EVENT;
 import jouvieje.bass.structures.BASS_MIDI_FONT;
 import jouvieje.bass.structures.HENCODE;
 import jouvieje.bass.structures.HSTREAM;
@@ -82,7 +86,7 @@ import keppy.midiConverter.resources.Textures;
  * This application uses NativeBass by Jérôme Jouvie
  */
 @SuppressWarnings("serial")
-public class KeppysMidiConverterPanel extends JPanel {
+public class KeppysMidiConverterPanel extends JPanel implements KeyListener {
 	
 	public static boolean checkUpdatesOnStart = true;
 	public static boolean shutdownAfterRendering = false;
@@ -109,7 +113,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 	private JLabel lblVoices;
 	private JLabel lblStatus2;
 	private JLabel lblStatus3;
-	private JProgressBar progressBar;
+	private JSlider progressSlider;
 	private JMenuItem clearMidiListMenuItem;
 	private JMenuItem importMidiMenuItem;
 	private JMenuItem removeMidiMenuItem;
@@ -123,6 +127,9 @@ public class KeppysMidiConverterPanel extends JPanel {
 	public static String midiSelectorDirectory = "somedirectorythatdoestexist";
 	public static String sfSelectorDirectory = "somedirectorythatdoestexist";
 	private static String folderSelectorDirectory = "somedirectorythatdoestexist";
+	private int eventc;
+	private BASS_MIDI_EVENT[] events;
+	private static boolean realtimeAudioSimulation = false;
 	
 	/*
 	 * Create GUI and stuff
@@ -245,7 +252,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 		popupMenu.add(addMenuItem(LanguageFile.CURRENT.menuActionsImport, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				importMidi();
-			}}, null));
+			}}, null, new ImageIcon(Textures.addIcon)));
 		popupMenu.add(addMenuItem(LanguageFile.CURRENT.menuActionsRemove, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
@@ -258,7 +265,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 					mList.remove(midiTable.getSelectedRow());
 					midiTable.repaint();
 				}
-			}}, null));
+			}}, null, new ImageIcon(Textures.removeIcon)));
 		popupMenu.add(addMenuItem(LanguageFile.CURRENT.menuActionsClearMIDIsList, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
@@ -292,7 +299,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 	                }
 	            }
 	            midiTable.repaint();
-			}}, null));
+			}}, null, new ImageIcon(Textures.upIcon)));
 		popupMenu.add(addMenuItem(LanguageFile.CURRENT.mainWindowMidiListPopupDown, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 	            if (mList.size() > 0)
@@ -314,7 +321,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 	                }
 	            }
 	            midiTable.repaint();
-			}}, null));
+			}}, null, new ImageIcon(Textures.downIcon)));
 		popupMenu.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
 		addPopup(midiTable, popupMenu);
 		listScroller.setBounds(12, 12, 628, 258);
@@ -323,18 +330,21 @@ public class KeppysMidiConverterPanel extends JPanel {
 		add(listScroller);
 		
 		lblVoices = new JLabel(LanguageFile.CURRENT.mainWindowVoices + " 0/" + maxVoices);
-		lblVoices.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblVoices.setHorizontalAlignment(SwingConstants.LEFT);
 		lblVoices.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		lblVoices.setBounds(359, 283, 143, 16);
+		lblVoices.setBounds(12, 287, 143, 16);
 		add(lblVoices);
 		
-		progressBar = new JProgressBar();
-		progressBar.setBorder(new LineBorder(new Color(0xBCBCBC)));
-		progressBar.setMinimum(0);
-		progressBar.setMaximum(100);
-		progressBar.setForeground(new Color(0x06B025));
-		progressBar.setBounds(0, 387, 652, 23);
-		add(progressBar);
+		progressSlider = new JSlider();
+		//progressSlider.setBorder(new LineBorder(new Color(0xBCBCBC)));
+		progressSlider.setMinimum(0);
+		progressSlider.setMaximum(100);
+		progressSlider.setValue(0);
+		progressSlider.setEnabled(false);
+		progressSlider.setPaintTicks(true);
+		progressSlider.setForeground(new Color(0x06B025));
+		progressSlider.setBounds(12, 380, 637, 25);
+		add(progressSlider);
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, LanguageFile.CURRENT.mainWindowSettings, TitledBorder.LEADING, TitledBorder.TOP, new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12), null));
@@ -344,13 +354,13 @@ public class KeppysMidiConverterPanel extends JPanel {
 		
 		JLabel lblVoiceLimit = new JLabel(LanguageFile.CURRENT.mainWindowVoiceLimit);
 		lblVoiceLimit.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
-		lblVoiceLimit.setBounds(6, 18, 57, 16);
+		lblVoiceLimit.setBounds(6, 18, 68, 16);
 		panel.add(lblVoiceLimit);
 		
 		spinner = new JSpinner();
 		spinner.setModel(new SpinnerNumberModel(maxVoices, 1, 100000, 1));
-		spinner.setBounds(63, 16, 58, 21);
-		spinner.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
+		spinner.setBounds(74, 17, 50, 18);
+		spinner.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 10));
 		spinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -388,7 +398,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 			}
 		});
 		btnNewButton.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 9));
-		btnNewButton.setBounds(6, 40, 118, 23);
+		btnNewButton.setBounds(6, 43, 118, 16);
 		panel.add(btnNewButton);
 		
 		lblVolume = new JLabel(LanguageFile.CURRENT.mainWindowVolume);
@@ -398,13 +408,15 @@ public class KeppysMidiConverterPanel extends JPanel {
 		add(lblVolume);
 		
 		volumeSlider = new JSlider();
+		volumeSlider.setMajorTickSpacing(10000);
+		volumeSlider.setPaintTicks(true);
 		volumeSlider.setMaximum(10000);
 		volumeSlider.setValue(10000);
 		volumeSlider.setBounds(510, 283, 130, 20);
 		add(volumeSlider);
 		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panel_1.setBackground(Color.WHITE);
 		panel_1.setBounds(12, 311, 492, 64);
 		add(panel_1);
@@ -413,18 +425,19 @@ public class KeppysMidiConverterPanel extends JPanel {
 		lblStatus2 = new JLabel(LanguageFile.CURRENT.mainWindowStatusIdle1);
 		lblStatus2.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStatus2.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		lblStatus2.setBounds(0, 11, 488, 16);
+		lblStatus2.setBounds(0, 11, 455, 16);
 		panel_1.add(lblStatus2);
 		
 		lblStatus = new JLabel(LanguageFile.CURRENT.mainWindowStatusIdle2);
 		lblStatus.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStatus.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 12));
-		lblStatus.setBounds(0, 27, 488, 16);
+		lblStatus.setBounds(0, 27, 455, 16);
 		panel_1.add(lblStatus);
 		
 		lblLoadingpic = new JLabel();
-		convbusyPlayer = new JLabelGifPlayer(30, lblLoadingpic, "/convbusy.gif", true);
-		lblLoadingpic.setVisible(false);
+		convbusyPlayer = new JLabelGifPlayer(30, lblLoadingpic, "/convpause.gif", true);
+		convbusyPlayer.start();
+		lblLoadingpic.setVisible(true);
 		lblLoadingpic.setBounds(425, 3, 63, 60);
 		panel_1.add(lblLoadingpic);
 		
@@ -437,7 +450,17 @@ public class KeppysMidiConverterPanel extends JPanel {
 		requestFocus();
 		createMenuBar();
 		
-		KeppysMidiConverter.frame.setIconImage(Textures.icon);
+		KeppysMidiConverter.frame.setIconImage(Textures.logo);
+		this.addKeyListener(this);
+		for(Component c:this.getComponents()){
+			c.addKeyListener(this);
+		}
+		for(Component c:panel.getComponents()){
+			c.addKeyListener(this);
+		}
+		for(Component c:panel_1.getComponents()){
+			c.addKeyListener(this);
+		}
 	}
 	
 	/*
@@ -458,7 +481,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 		importMidiMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsImport, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				importMidi();
-			}}, actionsMenu);
+			}}, actionsMenu, new ImageIcon(Textures.addIcon));
 		removeMidiMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsRemove, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
@@ -471,7 +494,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 					mList.remove(midiTable.getSelectedRow());
 					midiTable.repaint();
 				}
-			}}, actionsMenu);
+			}}, actionsMenu, new ImageIcon(Textures.removeIcon));
 		clearMidiListMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsClearMIDIsList, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				if(converterThread != null){
@@ -487,32 +510,32 @@ public class KeppysMidiConverterPanel extends JPanel {
 		addMenuItem(LanguageFile.CURRENT.menuActionsOpenSfManager, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				sfManager.setVisible(true);
-			}}, actionsMenu);
+			}}, actionsMenu, new ImageIcon(Textures.configureIcon));
 		actionsMenu.addSeparator();
 		startConversionMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsRenderWav, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				startConversion(0);
-			}}, actionsMenu);
+			}}, actionsMenu, new ImageIcon(Textures.audioIcon));
 		startOggConversionMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsRenderOgg, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				startConversion(1);
-			}}, actionsMenu);
+			}}, actionsMenu, new ImageIcon(Textures.audioIcon));
 		previewFilesMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsPreview, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				startConversion(2);
-			}}, actionsMenu);
+			}}, actionsMenu, new ImageIcon(Textures.speakerIcon));
 		abortRenderingMenuItem = addMenuItem(LanguageFile.CURRENT.menuActionsAbort, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				abortConversion();
-			}}, actionsMenu);
+			}}, actionsMenu, new ImageIcon(Textures.deleteIcon));
 		abortRenderingMenuItem.setEnabled(false);
 		actionsMenu.addSeparator();
 		addMenuItem(LanguageFile.CURRENT.menuActionsExit, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				abortConversion();
 				finishUp();
-			}}, actionsMenu);
-		addMenuItem(LanguageFile.CURRENT.menuHelpInformation, new ActionListener(){public void actionPerformed(ActionEvent event){information.setVisible(true);}}, helpMenu);
+			}}, actionsMenu, new ImageIcon(Textures.backIcon));
+		addMenuItem(LanguageFile.CURRENT.menuHelpInformation, new ActionListener(){public void actionPerformed(ActionEvent event){information.setVisible(true);}}, helpMenu, new ImageIcon(Textures.infoIcon));
 		addMenuItem(LanguageFile.CURRENT.menuHelpSupport, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 	            String url = "";
@@ -530,40 +553,50 @@ public class KeppysMidiConverterPanel extends JPanel {
 	                "&currency_code=" + currency +
 	                "&bn=" + "PP%2dDonationsBF";
 	            openWebpage(url);
-			}}, helpMenu);
+			}}, helpMenu, new ImageIcon(Textures.editIcon));
 		helpMenu.addSeparator();
 		JMenu stuffMenu = new JMenu(LanguageFile.CURRENT.menuHelpBlackMidi);
 		stuffMenu.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		helpMenu.add(stuffMenu);
 		JMenuItem youtubeItem = new JMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiKeppsYoutube);
+		youtubeItem.setIcon(new ImageIcon(Textures.webIcon));
 		youtubeItem.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		youtubeItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://www.youtube.com/channel/UCJeqODojIv4TdeHcBfHJRnA");
 			}});
 		stuffMenu.add(youtubeItem);
+		JMenuItem githubItem = new JMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiKeppsGitHub);
+		githubItem.setIcon(new ImageIcon(Textures.webIcon));
+		githubItem.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
+		githubItem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				openWebpage("https://github.com/KaleidonKep99/");
+			}});
+		stuffMenu.add(githubItem);
 		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiTgmsYoutube, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://www.youtube.com/channel/UCB8EPwooLFYoApIaXK3jpRg");
-			}}, stuffMenu);
+			}}, stuffMenu, new ImageIcon(Textures.webIcon));
 		stuffMenu.addSeparator();
 		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiWiki, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("http://officialblackmidi.wikia.com/wiki/Official_Black_MIDI_Wikia");
-			}}, stuffMenu);
+			}}, stuffMenu, new ImageIcon(Textures.webIcon));
 		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiGPlus, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://plus.google.com/communities/105907289212970966669");
-			}}, stuffMenu);
+			}}, stuffMenu, new ImageIcon(Textures.webIcon));
 		stuffMenu.addSeparator();
 		addMenuItem(LanguageFile.CURRENT.menuHelpBlackMidiWikipedia, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				openWebpage("https://en.wikipedia.org/wiki/Black_MIDI");
-			}}, stuffMenu);
+			}}, stuffMenu, new ImageIcon(Textures.webIcon));
 		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsCheckUpdates, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){checkUpdatesOnStart = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){checkUpdatesOnStart = false;saveOptions(advancedSettings);}}, checkUpdatesOnStart);
 		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsShutdown, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){shutdownAfterRendering = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){shutdownAfterRendering = false;saveOptions(advancedSettings);}}, shutdownAfterRendering);
 		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsClearAfterRendering, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){clearMIDIsListAfterRendering = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){clearMIDIsListAfterRendering = false;saveOptions(advancedSettings);}}, clearMIDIsListAfterRendering);
 		addOptionMenuItem(LanguageFile.CURRENT.menuOptionsShowConversionPosition, optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){showConversionPosition = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){showConversionPosition = false;saveOptions(advancedSettings);}}, showConversionPosition);
+		//addOptionMenuItem("Enable realtime audio simulation", optionsMenu, new ActionListener(){public void actionPerformed(ActionEvent event){realtimeAudioSimulation = true;saveOptions(advancedSettings);}},new ActionListener(){public void actionPerformed(ActionEvent event){realtimeAudioSimulation = false;saveOptions(advancedSettings);}}, realtimeAudioSimulation);
 		addMenuItem("Force calculation of MIDI length and note count", new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				for(MIDIFile f:mList){
@@ -574,7 +607,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 		addMenuItem(LanguageFile.CURRENT.menuOptionsCrash, new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "Application was forcefully crashed by user", true);
-			}}, optionsMenu);
+			}}, optionsMenu, new ImageIcon(Textures.deleteIcon));
 	}
 	
 	/*
@@ -613,6 +646,12 @@ public class KeppysMidiConverterPanel extends JPanel {
 	 * Create the conversion thread and start conversion
 	 */
 	private void startConversion(int mode){
+		if(mode == 0 && realtimeAudioSimulation){
+			mode = 3;
+		}
+		if(mode == 1 && realtimeAudioSimulation){
+			mode = 4;
+		}
 		if(mList.isEmpty()){
 			ErrorMessage.showErrorMessageNoStackTrace(KeppysMidiConverter.frame, "Cant start conversion: add some MIDIs to convert first", false);
 			return;
@@ -627,6 +666,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 				return;
 			}
 		}
+		convbusyPlayer.stop();
 		if(mode != 2){
 			if(folderChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION){
 				return;
@@ -637,9 +677,21 @@ public class KeppysMidiConverterPanel extends JPanel {
 			}
 			folderSelectorDirectory = folderChooser.getCurrentDirectory().getPath();
 			saveOptions(advancedSettings);
+			convbusyPlayer = new JLabelGifPlayer(30, lblLoadingpic, "/convbusy.gif", true);
+		}else{
+			convbusyPlayer = new JLabelGifPlayer(30, lblLoadingpic, "/convprwo.gif", true);
+			if(KeppysMidiConverterPanel.maxVoices > 2000){
+				KeppysMidiConverterPanel.maxVoices = 2000;
+				this.spinner.setValue(2000);
+			}
 		}
 		convbusyPlayer.start();
-		MidiConverter converter = new MidiConverter(mode, folderChooser.getSelectedFile().getPath());
+		MidiConverter converter = null;
+		if(mode == 2){
+			converter = new MidiConverter(mode, "");
+		}else{
+			converter = new MidiConverter(mode, folderChooser.getSelectedFile().getPath());
+		}
 		converterThread = new Thread(converter);
 		converterThread.start();
 		startConversionMenuItem.setEnabled(false);
@@ -667,7 +719,9 @@ public class KeppysMidiConverterPanel extends JPanel {
 		previewFilesMenuItem.setEnabled(true);
 		startOggConversionMenuItem.setEnabled(true);
 		midiTable.setEnabled(true);
-		lblLoadingpic.setVisible(false);
+		convbusyPlayer.stop();
+		convbusyPlayer = new JLabelGifPlayer(30, lblLoadingpic, "/convpause.gif", true);
+		convbusyPlayer.start();
 		clearMidiListMenuItem.setEnabled(true);
 		importMidiMenuItem.setEnabled(true);
 		removeMidiMenuItem.setEnabled(true);
@@ -696,7 +750,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 				ErrorMessage.showErrorMessage(KeppysMidiConverter.frame, "Error shuting down computer after rendering",e, true);
 			}
 		}
-		progressBar.setValue(0);
+		progressSlider.setValue(0);
 	}
 	
 	/*
@@ -740,14 +794,19 @@ public class KeppysMidiConverterPanel extends JPanel {
 	/*
 	 * Create a new menu item with action listener and add it to a menu if one is given
 	 */
-	public static JMenuItem addMenuItem(String title, ActionListener listener, JMenu menu){
+	public static JMenuItem addMenuItem(String title, ActionListener listener, JMenu menu, Icon icon){
 		JMenuItem item = new JMenuItem(title);
 		item.addActionListener(listener);
 		item.setFont(new Font(KeppysMidiConverterPanel.font, Font.PLAIN, 11));
 		if(menu != null){
 			menu.add(item);
 		}
+		if(icon != null) item.setIcon(icon);
 		return item;
+	}
+	
+	public static JMenuItem addMenuItem(String title, ActionListener listener, JMenu menu){
+		return addMenuItem(title, listener, menu, null);
 	}
 	
 	/*
@@ -778,6 +837,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 			dos.writeBoolean(advSettings.chckbxDisableSoundEffects.isSelected());
 			dos.writeBoolean(advSettings.chckbxOverrideMidiTempo.isSelected());
 			dos.writeBoolean(advSettings.chckbxForceConstantBitrate.isSelected());
+			//dos.writeBoolean(realtimeAudioSimulation);
 			dos.writeInt(advSettings.frequencyComboBox.getSelectedIndex());
 			dos.writeInt(advSettings.bitrateComboBox.getSelectedIndex());
 			dos.writeInt(Integer.parseInt(advSettings.tempoSpinner.getValue().toString()));
@@ -821,6 +881,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 			advSettings.chckbxOverrideMidiTempo.setSelected(b);
 			b = dis.readBoolean();
 			advSettings.chckbxForceConstantBitrate.setSelected(b);
+			//realtimeAudioSimulation = dis.readBoolean();
 			advSettings.bitrateComboBox.setEnabled(advSettings.chckbxForceConstantBitrate.isSelected());
 			advSettings.tempoSpinner.setEnabled(advSettings.chckbxOverrideMidiTempo.isSelected());
 			int i;
@@ -875,6 +936,14 @@ public class KeppysMidiConverterPanel extends JPanel {
 			this.folder = folder;
 		}
 		
+		private String fancyFormat(Long number){
+			String result = Long.toString(number);
+			if(number < 10){
+				result = "0" + result;
+			}
+			return result;
+		}
+		
 		/*
 		 * Main thread function
 		 */
@@ -884,13 +953,190 @@ public class KeppysMidiConverterPanel extends JPanel {
 				realtimePlayback();
 				return;
 			}
+			if(mode == 3 || mode == 4){
+				try {
+					Random fpsSimulator = new Random();
+					boolean keepLooping = true;
+					if(stream != null) Bass.BASS_StreamFree(stream);
+					Bass.BASS_Free();
+					Bass.BASS_Init(-1, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()), BASS_DEVICE.BASS_DEVICE_NOSPEAKER, null, null);
+					Bass.BASS_SetConfig(BASS_CONFIG_MIDI.BASS_CONFIG_MIDI_VOICES, 100000);
+					while(keepLooping){
+						for(int i = 0; i < mList.size(); i++){
+							String str = mList.get(i).getFilepath().getPath();
+							int result = BASSStreamSystemRT(str);
+							if(result == 0){
+								JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "The MIDI is too big for realtime audio simulation", "Error", JOptionPane.ERROR_MESSAGE);
+								Bass.BASS_StreamFree(stream);
+								continue;
+							}
+							BASSEffectSettings();
+							BASSEncoderInit(new File(str).getName());
+							if(conversionCrashed){
+								return;
+							}
+							int pos = 0;
+							int es = 0;
+							long startTime = System.currentTimeMillis();
+							fpsSimulator.nextDouble();
+							for(pos = 0, es = 0;;){
+								if(conversionCrashed){
+									return;
+								}
+					        	if(conversionAborting){
+					        		lblStatus.setText("Conversion aborted.");
+					        		lblVoices.setText(LanguageFile.CURRENT.mainWindowVoices + " 0/" + maxVoices);
+					        		Sounds.playClip(Sounds.convfail);
+					        		JOptionPane.showMessageDialog(KeppysMidiConverter.frame, "Conversion aborted.", "Warning", JOptionPane.WARNING_MESSAGE);
+					        		keepLooping = false;
+					        		break;
+					        	}else{
+					        		double fpssim = fpsSimulator.nextDouble() * (0.01710000000000000000000000000001D - 0.01635000000000000000000000000001D) + 0.01635000000000000000000000000001D;
+					        		int length = (int) Bass.BASS_ChannelSeconds2Bytes(handle, fpssim);
+					        		byte[] buffer = new byte[length];
+					        		long timeSpent = System.currentTimeMillis() - startTime;
+					        		long num6 = Bass.BASS_ChannelGetPosition(handle, 0);
+					        		float num8 = ((float)num6) / 1048576f;
+					                float num11 = 0f;
+					                float num12 = 0f;
+					                FloatBuffer fbfr = BufferUtils.newFloatBuffer(1);
+					                Bass.BASS_ChannelGetAttribute(handle, 73732, fbfr);
+					                num11 = fbfr.get(0);
+					                fbfr = BufferUtils.newFloatBuffer(1);
+					                Bass.BASS_ChannelGetAttribute(handle, BASS_ATTRIB.BASS_ATTRIB_CPU, fbfr);
+					                num12 = fbfr.get(0);
+					                lblVoices.setText(LanguageFile.CURRENT.mainWindowVoices + " " + (int)num11 + "/" + maxVoices);
+					                double num9 = Bass.BASS_ChannelBytes2Seconds(handle, pos);
+					                double num10 = Bass.BASS_ChannelBytes2Seconds(handle, num6);
+					                String str4 = fancyFormat(TimeUnit.SECONDS.toHours((long)num9)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)num9) % 60) + ":" + fancyFormat(TimeUnit.SECONDS.toSeconds((long)num9) % 60);
+					                String str5 = fancyFormat(TimeUnit.SECONDS.toHours((long)num10)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)num10) % 60) + ":" + fancyFormat(TimeUnit.SECONDS.toSeconds((long)num10) % 60);
+					                if(es < eventc && events[es].getPos() < pos + length){
+					                	Bass.BASS_MIDI_StreamEvent(stream, events[es].getChan(), events[es].getEvent(), events[es].getChan());
+					                	es++;
+					                }
+					                ByteBuffer buff = BufferUtils.newByteBuffer(buffer.length);
+					                buff.put(buffer);
+					                buff.rewind();
+					                int got = Bass.BASS_ChannelGetData(handle, buff, length);
+					                if(got < 0){
+					                	conversionCrashed = true;
+					                	break;
+					                }
+					                pos += got;
+					                if(es == eventc){
+					                	Bass.BASS_MIDI_StreamEvent(stream, 0, 0, 0);
+					                }
+					                float fpsstring = 1 / (float)fpssim;
+					                if(num6 == 1) num6 = 2;
+					                if(num6 == 0) num6 = 2;
+					                float num7 = ((float)pos) / 1048576f;
+					                int secondsremaining = (int)((timeSpent / 1000) / (int)num6 * ((int)pos - (int)num6));
+					                String str6 = fancyFormat(TimeUnit.SECONDS.toHours((long)secondsremaining)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)secondsremaining) % 60) + ":" + fancyFormat(TimeUnit.SECONDS.toSeconds((long)secondsremaining) % 60);
+					                String str7 = fancyFormat(TimeUnit.MILLISECONDS.toHours((long)timeSpent)) + ":" + fancyFormat(TimeUnit.MILLISECONDS.toMinutes((long)timeSpent) % 60) + ":" + fancyFormat(TimeUnit.MILLISECONDS.toSeconds((long)timeSpent) % 60);
+					                float percentage = num8 / num7;
+					                float percentagefinal;
+					                if (percentage * 100 < 0){
+					                    percentagefinal = 0.0f;
+					                }
+					                else if (percentage * 100 > 100){
+					                    percentagefinal = 1.0f;
+					                }
+					                else{
+					                    percentagefinal = percentage * 100;
+					                }
+					                buff = BufferUtils.newByteBuffer(length);
+					                if(advancedSettings.chckbxOverrideMidiTempo.isSelected()){
+					                	Bass.BASS_MIDI_StreamEvent(stream, 0, 1, Integer.parseInt(advancedSettings.tempoSpinner.getValue().toString()));
+					                }
+					                Bass.BASS_ChannelGetData(handle, buff, length);
+					                String num8Str = Float.toString(num8);
+					                if(num8Str.length() >= 4){
+					                	num8Str = num8Str.substring(0, 4);
+					                }
+					                String fpsStr = Float.toString(fpsstring);
+					                if(fpsStr.length() >= 4){
+					                	fpsStr = num8Str.substring(0, 4);
+					                }
+					                if (num12 < 100f)
+					                {
+					                    if (showConversionPosition == false){
+					                        lblStatus2.setText(num8Str + "MBs of RAW samples converted. (" + (int)percentagefinal + "%, " + fpsStr + "FPS)");
+					                        lblStatus.setText("Approximate time left: " + str6 + " - Time elapsed: " + str7);
+					                        lblStatus3.setText("Rendering time: " + (int)num12 + "% (" + (int)(100f / num12) + "x~ faster)");
+					                    }else{
+					                    	lblStatus2.setText(num8Str + "MBs of RAW samples converted. (" + (int)percentagefinal + "%, " + fpsStr + "FPS)");
+					                        lblStatus.setText("Current position: " + str5 + " - " + str4);
+					                        lblStatus3.setText("Rendering time: " + (int)num12 + "% (" + (int)(100f / num12) + "x~ faster)");
+					                    }
+					                }
+					                else if (num12 == 100f)
+					                {
+					                    if (showConversionPosition == false){
+					                    	lblStatus2.setText(num8Str + "MBs of RAW samples converted. (" + (int)percentagefinal + "%, " + fpsStr + "FPS)");
+					    	                lblStatus.setText("Approximate time left: " + str6 + " - Time elapsed: " + str7);
+					    	                lblStatus3.setText("Rendering time: " + (int)num12 + "%");
+					                    }else{
+					                    	lblStatus2.setText(num8Str + "MBs of RAW samples converted. (" + (int)percentagefinal + "%, " + fpsStr + "FPS)");
+					                        lblStatus.setText("Current position: " + str5 + " - " + str4);
+					                        lblStatus3.setText("Rendering time: " + (int)num12 + "%");
+					                    }
+					                }
+					                else if (num12 > 100f)
+					                {
+					                    if (showConversionPosition == false){
+					                        lblStatus2.setText(num8Str + "MBs of RAW samples converted. (" + (int)percentagefinal + "%)");
+					                        lblStatus.setText("Approximate time left: " + str6 + " - Time elapsed: " + str7);
+					                        lblStatus3.setText("Rendering time: " + (int)num12 + "% (" + (int)(num12 / 100f) + "x~ slower)");
+					                    }else{
+					                        lblStatus2.setText(num8Str + "MBs of RAW samples converted. (" + (int)percentagefinal + "%)");
+					                        lblStatus.setText("Current position: " + str5 + " - " + str4);
+					                        lblStatus3.setText("Rendering time: " + (int)num12 + "% (" + (int)(num12 / 100f) + "x~ slower)");
+					                    }
+					                }
+					                if((int)percentagefinal > 100){
+					                	progressSlider.setValue(100);
+					                }else{
+					                	progressSlider.setValue((int)percentagefinal);
+					                }
+					                
+					        	}
+							}
+					        if(conversionAborting && keepLooping == false){
+					        	break;
+					        }else{
+					        	continue;
+					        }
+						}
+						if(conversionAborting){
+			        		lblVoices.setText(LanguageFile.CURRENT.mainWindowVoices + " 0/" + maxVoices);
+			        		keepLooping = false;
+			        		endConversion();
+			        		conversionAborting = false;
+						}else{
+							conversionAborting = false;
+							lblVoices.setText(LanguageFile.CURRENT.mainWindowVoices + " 0/" + maxVoices);
+							keepLooping = false;
+							Sounds.playClip(Sounds.convfin);
+							endConversion();
+						}
+					}
+				} catch(Exception e){
+					ErrorMessage.showErrorMessage(KeppysMidiConverter.frame, "Error converting MIDI", e, false);
+					e.printStackTrace();
+					endConversion();
+					return;
+				}
+				return;
+			}
 			try {
 				boolean keepLooping = true;
+				if(stream != null) Bass.BASS_StreamFree(stream);
+				Bass.BASS_Free();
+				Bass.BASS_Init(-1, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()), BASS_DEVICE.BASS_DEVICE_NOSPEAKER, null, null);
+				Bass.BASS_SetConfig(BASS_CONFIG_MIDI.BASS_CONFIG_MIDI_VOICES, 100000);
 				while(keepLooping){
 					for(int i = 0; i < mList.size(); i++){
 						String str = mList.get(i).getFilepath().getPath();
-						Bass.BASS_Init(-1, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()), BASS_DEVICE.BASS_DEVICE_NOSPEAKER, null, null);
-						Bass.BASS_SetConfig(BASS_CONFIG_MIDI.BASS_CONFIG_MIDI_VOICES, 100000);
 						BASSStreamSystem(str);
 						BASSEffectSettings();
 						BASSEncoderInit(new File(str).getName());
@@ -941,18 +1187,21 @@ public class KeppysMidiConverterPanel extends JPanel {
 		private void realtimePlayback() {
 			try {
 				boolean keepLooping = true;
+				if(stream != null) Bass.BASS_StreamFree(stream);
+				Bass.BASS_Free();
+				Bass.BASS_Init(-1, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()), BASS_DEVICE.BASS_DEVICE_LATENCY, null, null);
+				Bass.BASS_SetConfig(BASS_CONFIG_MIDI.BASS_CONFIG_MIDI_VOICES, 2000);
+                Bass.BASS_SetConfig(BASS_CONFIG.BASS_CONFIG_UPDATEPERIOD, 0);
+                Bass.BASS_SetConfig(BASS_CONFIG.BASS_CONFIG_UPDATETHREADS, 0);
+                BASS_INFO info = BASS_INFO.allocate();
+                Bass.BASS_GetInfo(info);
+                Bass.BASS_SetConfig(BASS_CONFIG.BASS_CONFIG_BUFFER, info.getMinBuffer() + 10 + 50);
 				while(keepLooping){
 					for(int i = 0; i < mList.size(); i++){
 						String str = mList.get(i).getFilepath().getPath();
-						Bass.BASS_Init(-1, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()), 0, null, null);
-                        Bass.BASS_SetConfig(BASS_CONFIG.BASS_CONFIG_UPDATEPERIOD, 0);
-                        Bass.BASS_SetConfig(BASS_CONFIG.BASS_CONFIG_UPDATETHREADS, 32);
-                        BASS_INFO info = BASS_INFO.allocate();
-                        Bass.BASS_GetInfo(info);
-                        Bass.BASS_SetConfig(BASS_CONFIG.BASS_CONFIG_BUFFER, info.getMinBuffer() + 10);
-                        Bass.BASS_ChannelSetAttribute(handle, 73731, maxVoices);
-                        stream = Bass.BASS_MIDI_StreamCreateFile(false, pointerFromString(str), 0L, 0L, BASS_SAMPLE.BASS_SAMPLE_FLOAT | BASS_MIDI.BASS_MIDI_DECAYEND, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()));
+                        stream = Bass.BASS_MIDI_StreamCreateFile(false, pointerFromString(str), 0L, 0L, BASS_SAMPLE.BASS_SAMPLE_FLOAT | BASS_MIDI.BASS_MIDI_DECAYEND | BASS_SAMPLE.BASS_SAMPLE_SOFTWARE, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()));
                         handle = stream.asInt();
+                        Bass.BASS_ChannelSetAttribute(handle, 73731, maxVoices);
                         setName(KeppysMidiConverter.NAME + " | Playing \"" + str + "...\"...");
                         BASS_MIDI_FONT[] fonts = new BASS_MIDI_FONT[sfManager.listModel.size()];
                         for(int j = 0; j < sfManager.listModel.size(); j++){
@@ -991,8 +1240,8 @@ public class KeppysMidiConverterPanel extends JPanel {
                                 float num8 = ((float)num6) / 1048576f;
                                 double num9 = Bass.BASS_ChannelBytes2Seconds(handle, pos);
                                 double num10 = Bass.BASS_ChannelBytes2Seconds(handle, num6);
-                                String str4 = Long.toString(TimeUnit.SECONDS.toHours((long)num9)) + ":" + Long.toString(TimeUnit.SECONDS.toMinutes((long)num9) % 60) + ":" + Long.toString(TimeUnit.SECONDS.toSeconds((long)num9) % 60);
-                                String str5 = Long.toString(TimeUnit.SECONDS.toHours((long)num10)) + ":" + Long.toString(TimeUnit.SECONDS.toMinutes((long)num10) % 60) + ":" + Long.toString(TimeUnit.SECONDS.toSeconds((long)num10) % 60);
+				                String str4 = fancyFormat(TimeUnit.SECONDS.toHours((long)num9)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)num9) % 60) + ":" + fancyFormat(TimeUnit.SECONDS.toSeconds((long)num9) % 60);
+				                String str5 = fancyFormat(TimeUnit.SECONDS.toHours((long)num10)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)num10) % 60) + ":" + fancyFormat(TimeUnit.SECONDS.toSeconds((long)num10) % 60);
                                 float num11 = 0f;
                                 float num12 = 0f;
                                 FloatBuffer fbfr = BufferUtils.newFloatBuffer(1);
@@ -1018,11 +1267,12 @@ public class KeppysMidiConverterPanel extends JPanel {
                                 	num8Str = num8Str.substring(0, 4);
                                 }
                                 lblStatus.setText(num8Str + "MBs of RAW datas played.\nCurrent position: " + str5 + " - " + str4);
+                                lblStatus2.setText("");
                                 lblStatus3.setText("Rendering time: " + (int)num12 + "%");
                                 if((int)percentagefinal > 100){
-                                	progressBar.setValue(100);
+                                	progressSlider.setValue(100);
                                 }else{
-                                	progressBar.setValue((int)percentagefinal);
+                                	progressSlider.setValue((int)percentagefinal);
                                 }
                                 Bass.BASS_ChannelUpdate(handle, 0);
 				        	}
@@ -1063,8 +1313,8 @@ public class KeppysMidiConverterPanel extends JPanel {
             float num8 = ((float)num6) / 1048576f;
             double num9 = Bass.BASS_ChannelBytes2Seconds(handle, pos);
             double num10 = Bass.BASS_ChannelBytes2Seconds(handle, num6);
-            String str4 = Long.toString(TimeUnit.SECONDS.toHours((long)num9)) + ":" + Long.toString(TimeUnit.SECONDS.toMinutes((long)num9) % 60) + ":" + Long.toString(TimeUnit.SECONDS.toSeconds((long)num9) % 60);
-            String str5 = Long.toString(TimeUnit.SECONDS.toHours((long)num10)) + ":" + Long.toString(TimeUnit.SECONDS.toMinutes((long)num10) % 60) + ":" + Long.toString(TimeUnit.SECONDS.toSeconds((long)num10) % 60);
+            String str4 = fancyFormat(TimeUnit.SECONDS.toHours((long)num9)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)num9) % 60) + ":" + fancyFormat(TimeUnit.SECONDS.toSeconds((long)num9) % 60);
+            String str5 = fancyFormat(TimeUnit.SECONDS.toHours((long)num10)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)num10) % 60) + ":" +fancyFormat(TimeUnit.SECONDS.toSeconds((long)num10) % 60);
             float num11 = 0f;
             float num12 = 0f;
             FloatBuffer fbfr = BufferUtils.newFloatBuffer(1);
@@ -1076,9 +1326,9 @@ public class KeppysMidiConverterPanel extends JPanel {
             lblVoices.setText(LanguageFile.CURRENT.mainWindowVoices + " " + (int)num11 + "/" + maxVoices);
             if(num6 == 1) num6 = 2;
             if(num6 == 0) num6 = 2;
-            int secondsremaining = (int)((timeSpent / 1000) / (int)num6 * ((int)pos - (int)num6));
-            String str6 = Long.toString(TimeUnit.SECONDS.toHours((long)secondsremaining)) + ":" + Long.toString(TimeUnit.SECONDS.toMinutes((long)secondsremaining) % 60) + ":" + Long.toString(TimeUnit.SECONDS.toSeconds((long)secondsremaining) % 60);
-            String str7 = Long.toString(TimeUnit.MILLISECONDS.toHours((long)timeSpent)) + ":" + Long.toString(TimeUnit.MILLISECONDS.toMinutes((long)timeSpent) % 60) + ":" + Long.toString(TimeUnit.MILLISECONDS.toSeconds((long)timeSpent) % 60);
+            int secondsremaining = (int)(((double)timeSpent / 1000D) / (double)num6 * ((double)pos - (double)num6));
+            String str6 = fancyFormat(TimeUnit.SECONDS.toHours((long)secondsremaining)) + ":" + fancyFormat(TimeUnit.SECONDS.toMinutes((long)secondsremaining) % 60) + ":" + fancyFormat(TimeUnit.SECONDS.toSeconds((long)secondsremaining) % 60);
+            String str7 = fancyFormat(TimeUnit.MILLISECONDS.toHours((long)timeSpent)) + ":" + fancyFormat(TimeUnit.MILLISECONDS.toMinutes((long)timeSpent) % 60) + ":" + fancyFormat(TimeUnit.MILLISECONDS.toSeconds((long)timeSpent) % 60);
             float percentage = num8 / num7;
             float percentagefinal;
             if (percentage * 100 < 0){
@@ -1136,9 +1386,9 @@ public class KeppysMidiConverterPanel extends JPanel {
                 }
             }
             if((int)percentagefinal > 100){
-            	progressBar.setValue(100);
+            	progressSlider.setValue(100);
             }else{
-            	progressBar.setValue((int)percentagefinal);
+            	progressSlider.setValue((int)percentagefinal);
             }
 		}
 		
@@ -1164,6 +1414,41 @@ public class KeppysMidiConverterPanel extends JPanel {
             Bass.BASS_MIDI_StreamLoadSamples(stream);
 		}
 		
+		private int BASSStreamSystemRT(String str) throws Exception {
+			stream = Bass.BASS_MIDI_StreamCreateFile(false, pointerFromString(str), 0L, 0L, BASS_STREAM.BASS_STREAM_DECODE | BASS_SAMPLE.BASS_SAMPLE_FLOAT, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()));
+			handle = stream.asInt();
+			try {
+				eventc = Bass.BASS_MIDI_StreamGetEvents(stream, -1, 0, null);
+				events = new BASS_MIDI_EVENT[eventc];
+			} catch(Exception e){
+				e.printStackTrace();
+				return 0;
+			}
+			//Load events here as soon as NATIVE BASS ACTUALLY FUCKING SUPPORTS THAT!!!!
+			Bass.BASS_StreamFree(stream);
+			stream = Bass.BASS_MIDI_StreamCreateFile(false, pointerFromString(str), 0L, 0L, BASS_STREAM.BASS_STREAM_DECODE | BASS_SAMPLE.BASS_SAMPLE_FLOAT | BASS_SAMPLE.BASS_SAMPLE_SOFTWARE, Integer.parseInt(advancedSettings.frequencyComboBox.getSelectedItem().toString()));
+			handle = stream.asInt();
+			Bass.BASS_SetConfig(BASS_CONFIG.BASS_CONFIG_GVOL_STREAM, volumeSlider.getValue());
+            Bass.BASS_ChannelSetAttribute(handle, 73731, maxVoices);
+            Bass.BASS_ChannelSetAttribute(handle, BASS_ATTRIB.BASS_ATTRIB_MIDI_CPU, 0);
+            setName(KeppysMidiConverter.NAME + " | Exporting \"" + str + "...\"...");
+            BASS_MIDI_FONT[] fonts = new BASS_MIDI_FONT[sfManager.listModel.size()];
+            for(int j = 0; j < sfManager.listModel.size(); j++){
+            	fonts[j] = BASS_MIDI_FONT.allocate();
+            	String s = sfManager.listModel.getElementAt(j);
+            	if(s == null || s.isEmpty()){
+            		continue;
+            	}
+                fonts[j].setFont(Bass.BASS_MIDI_FontInit(pointerFromString(s), 0));
+                fonts[j].setPreset(-1);
+                fonts[j].setBank(0);
+                Bass.BASS_MIDI_FontSetVolume(fonts[j].getFont(), ((float)volumeSlider.getValue() / 10000.0F));
+                Bass.BASS_MIDI_StreamSetFonts(stream, fonts[j], j + 1);
+            }
+            Bass.BASS_MIDI_StreamLoadSamples(stream);
+            return 1;
+		}
+		
 		private void BASSEffectSettings(){
             if (advancedSettings.chckbxDisableSoundEffects.isSelected()){
                 Bass.BASS_ChannelFlags(handle, BASS_MIDI.BASS_MIDI_NOFX, BASS_MIDI.BASS_MIDI_NOFX);
@@ -1181,7 +1466,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 			File f;
 			String path;
 			
-			if(mode == 0){
+			if(mode == 0 || mode == 3){
 				f = new File(folder + "\\" + str + ".wav");
 				if(f.exists()){
 					int num1 = 1;
@@ -1191,7 +1476,7 @@ public class KeppysMidiConverterPanel extends JPanel {
 					}
 				}
 				encoder = Bass.BASS_Encode_Start(handle, f.getPath(),  BASS_ENCODE.BASS_ENCODE_AUTOFREE | BASS_ENCODE.BASS_ENCODE_PCM, null, null);
-			}else if(mode == 1){
+			}else if(mode == 1 || mode == 4){
 				f = new File(folder + "\\" + str + ".ogg");
 				if(f.exists()){
 					int num1 = 1;
@@ -1268,6 +1553,23 @@ public class KeppysMidiConverterPanel extends JPanel {
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});
+	}
+	
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_F1){
+			information.setVisible(true);
+		}
+	}
+	
+	@Override
+	public void keyReleased(KeyEvent e) {
+		
 	}
 	
 }
